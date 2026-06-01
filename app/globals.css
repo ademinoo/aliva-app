@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/*
+ * Identité visuelle Aliva — « Un univers VIVUM »
+ * Fond crème chaud sur toutes les pages (jamais de blanc clinique).
+ * Vert uniquement sur les éléments actifs et le logo.
+ * Terre cuite réservée aux actions principales.
+ */
+@theme inline {
+  --color-cream:       #f7f4ef;
+  --color-aliva:       #1e5c3a;
+  --color-aliva-pale:  #cce8d8;
+  --color-terracotta:  #b05530;
+  --color-gold:        #a8842a;
+  --color-ink:         #1c1c1a;
+  --color-ink-soft:    #5b5b56;
+
+  --color-background:  var(--color-cream);
+  --color-foreground:  var(--color-ink);
+
+  --font-title:  var(--font-literata);
+  --font-sans:   var(--font-nunito);
+
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Animations */
+  --animate-fade-up:       fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in:       fade-in 0.3s ease both;
+  --animate-slide-left:    slide-left 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-right:   slide-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-check-pulse:   check-pulse 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-score-grow:    score-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-notif-appear:  notif-appear 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── Keyframes ────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-left {
+  from { opacity: 0; transform: translateX(40px);  }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes check-pulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes score-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes notif-appear {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ─── Base ──────────────────────────────────────────────── */
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-title), Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}

@@ -1,52 +1,36 @@
-# aliva-app
-PWA mobile-first pour Aliva, compagnon santé bien-être éducatif porté par VIVUM.
-# Aliva
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Aliva est une PWA mobile-first de santé préventive et d'hygiène de vie.
+## Getting Started
 
-Elle accompagne l'utilisateur au quotidien avec :
-- une cartographie initiale,
-- un premier plan personnalisé,
-- un tableau de bord simple,
-- des actions quotidiennes,
-- un chat IA,
-- une analyse visuelle des repas,
-- une approche progressive et non culpabilisante.
+First, run the development server:
 
-## Positionnement
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-Aliva ne remplace jamais un médecin.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-L'application propose un accompagnement éducatif au bien-être et à l'hygiène de vie.
-Les recommandations ne constituent pas un diagnostic médical.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Stack technique V1
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- Next.js 14 App Router
-- TypeScript
-- Tailwind CSS
-- Supabase Auth + PostgreSQL + Storage
-- Claude API
-- Stripe Checkout
-- Resend
-- PostHog
-- Vercel
+## Learn More
 
-## Objectif V1
+To learn more about Next.js, take a look at the following resources:
 
-Sortir une PWA testable en 4 semaines permettant à un utilisateur de :
-- découvrir Aliva,
-- créer un compte,
-- remplir son questionnaire,
-- obtenir un premier plan personnalisé,
-- accéder à son tableau de bord,
-- cocher ses actions quotidiennes,
-- parler à Aliva,
-- tester l'analyse repas,
-- passer à l'offre Équilibre.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Règle produit
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-Progressivité avant complexité.
+## Deploy on Vercel
 
-Aliva doit aider l'utilisateur sans jamais le submerger.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
