@@ -3,42 +3,38 @@
 import { useEffect, useState } from "react";
 
 /**
- * Écran de démarrage zen — apparaît une seule fois par session.
- * Séquence : feuille → texte → anneau → fondu sortie.
+ * Écran de démarrage zen — visible dès le premier rendu,
+ * disparaît après ~3s avec un fondu doux.
  */
 export function SplashScreen() {
-  const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
+  const [visible, setVisible] = useState(true);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    setPhase("in");
-
-    const t1 = setTimeout(() => setPhase("out"), 2600);
-    const t2 = setTimeout(() => setPhase("hidden"), 3300);
-
+    const t1 = setTimeout(() => setFading(true), 2500);
+    const t2 = setTimeout(() => setVisible(false), 3200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  if (phase === "hidden") return null;
-
-  const isOut = phase === "out";
+  if (!visible) return null;
 
   return (
     <div
       style={{
-        position:        "fixed",
-        inset:           0,
-        zIndex:          200,
-        display:         "flex",
-        flexDirection:   "column",
-        alignItems:      "center",
-        justifyContent:  "center",
-        backgroundColor: "#f7f4ef",
-        opacity:          isOut ? 0 : 1,
-        transition:      "opacity 0.7s ease",
-        pointerEvents:   isOut ? "none" : "all",
+        position:       "fixed",
+        inset:          0,
+        zIndex:         999,
+        display:        "flex",
+        flexDirection:  "column",
+        alignItems:     "center",
+        justifyContent: "center",
+        backgroundColor:"#f7f4ef",
+        opacity:         fading ? 0 : 1,
+        transition:     "opacity 0.7s ease",
+        pointerEvents:   fading ? "none" : "all",
       }}
     >
-      {/* Anneau expansif — calme, lent */}
+      {/* Anneau expansif */}
       <div style={{
         position:     "absolute",
         width:        96,
@@ -49,7 +45,7 @@ export function SplashScreen() {
         opacity:      0,
       }} />
 
-      {/* Deuxième anneau, plus doux, décalé */}
+      {/* Second anneau, plus doux */}
       <div style={{
         position:     "absolute",
         width:        96,
@@ -82,13 +78,13 @@ export function SplashScreen() {
 
       {/* "Aliva" */}
       <p style={{
-        marginTop:  20,
-        fontFamily: "var(--font-literata), Georgia, serif",
-        fontSize:   "1.85rem",
-        fontWeight: 300,
-        color:      "#1e5c3a",
+        marginTop:     20,
+        fontFamily:    "var(--font-literata), Georgia, serif",
+        fontSize:      "1.85rem",
+        fontWeight:    300,
+        color:         "#1e5c3a",
         letterSpacing: "0.02em",
-        animation:  "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both",
+        animation:     "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both",
       }}>
         Aliva
       </p>
@@ -101,26 +97,26 @@ export function SplashScreen() {
         letterSpacing: "0.22em",
         textTransform: "uppercase",
         color:         "#5b5b56",
-        animation:     "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.85s both",
+        animation:     "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both",
       }}>
         Un univers VIVUM
       </p>
 
-      {/* Trois points de chargement — rythmés */}
+      {/* Points de chargement */}
       <div style={{
-        display:    "flex",
-        gap:        8,
-        marginTop:  40,
-        animation:  "splash-text-in 0.6s ease 1.2s both",
+        display:   "flex",
+        gap:       8,
+        marginTop: 40,
+        animation: "splash-text-in 0.6s ease 1.1s both",
       }}>
         {[0, 1, 2].map((i) => (
           <span key={i} style={{
-            display:      "block",
-            width:        5,
-            height:       5,
-            borderRadius: "50%",
+            display:         "block",
+            width:           5,
+            height:          5,
+            borderRadius:    "50%",
             backgroundColor: "#cce8d8",
-            animation:    `splash-dot 1.4s ease-in-out ${i * 0.22}s infinite`,
+            animation:       `splash-dot 1.4s ease-in-out ${i * 0.22}s infinite`,
           }} />
         ))}
       </div>
