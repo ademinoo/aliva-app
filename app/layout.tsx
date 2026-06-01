@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Literata, Nunito_Sans } from "next/font/google";
 import "./globals.css";
+import { SplashFader } from "@/components/ui/splash-fader";
 
 const literata = Literata({
   variable: "--font-literata",
@@ -26,6 +27,23 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+/* Styles inline — zéro dépendance CSS externe, pas de chargement async */
+const SP: React.CSSProperties = {
+  position:        "fixed",
+  top:             0,
+  left:            0,
+  right:           0,
+  bottom:          0,
+  width:           "100%",
+  height:          "100%",
+  zIndex:          2147483647,          // z-index maximum possible
+  backgroundColor: "#1e5c3a",          // vert foncé — visible immédiatement
+  display:         "flex",
+  flexDirection:   "column",
+  alignItems:      "center",
+  justifyContent:  "center",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -35,50 +53,13 @@ export default function RootLayout({
       className={`${literata.variable} ${nunitoSans.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
-        {/*
-          Splash screen — rendu serveur, dans l'arbre React (pas de suppression
-          à l'hydratation). Le <style precedence> est hissé dans le <head> par
-          React 18 avant tout rendu, donc la CSS est appliquée dès le premier pixel.
-        */}
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-        {/* @ts-ignore — precedence est un prop React 18 non encore typé */}
-        <style precedence="high">{`
-          #aliva-sp {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background-color: #1e5c3a;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-flex-direction: column;
-            flex-direction: column;
-            -webkit-align-items: center;
-            align-items: center;
-            -webkit-justify-content: center;
-            justify-content: center;
-            -webkit-animation: sp-exit 0.8s ease 8s forwards;
-            animation: sp-exit 0.8s ease 8s forwards;
-          }
-          @-webkit-keyframes sp-exit {
-            from { opacity: 1; }
-            to   { opacity: 0; visibility: hidden; }
-          }
-          @keyframes sp-exit {
-            from { opacity: 1; }
-            to   { opacity: 0; visibility: hidden; }
-          }
-        `}</style>
 
-        <div id="aliva-sp" aria-hidden="true">
+        {/* Splash serveur — rendu dans l'arbre React, jamais supprimé */}
+        <div id="aliva-sp" aria-hidden="true" style={SP}>
           <svg
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#1e5c3a"
+            stroke="white"
             strokeWidth="1.55"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -91,27 +72,29 @@ export default function RootLayout({
             <line x1="12" y1="15" x2="12" y2="20" />
           </svg>
           <p style={{
-            marginTop: 22,
-            fontFamily: "Georgia, serif",
-            fontSize: "1.85rem",
-            fontWeight: 300,
-            color: "#1e5c3a",
+            marginTop:     22,
+            fontFamily:    "Georgia, serif",
+            fontSize:      "1.85rem",
+            fontWeight:    300,
+            color:         "#ffffff",
             letterSpacing: "0.02em",
-          color: "#ffffff",
           }}>
             Aliva
           </p>
           <p style={{
-            marginTop: 10,
-            fontSize: "0.6rem",
-            fontWeight: 600,
+            marginTop:     10,
+            fontSize:      "0.6rem",
+            fontWeight:    600,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.6)",
+            color:         "rgba(255,255,255,0.6)",
           }}>
             Un univers VIVUM
           </p>
         </div>
+
+        {/* Pilote la disparition côté client */}
+        <SplashFader />
 
         {children}
       </body>
