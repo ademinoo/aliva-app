@@ -52,7 +52,7 @@ export default function RootLayout({
             width: 100%;
             height: 100%;
             z-index: 9999;
-            background-color: #f7f4ef;
+            background-color: #1e5c3a;
             display: -webkit-flex;
             display: flex;
             -webkit-flex-direction: column;
@@ -61,8 +61,8 @@ export default function RootLayout({
             align-items: center;
             -webkit-justify-content: center;
             justify-content: center;
-            -webkit-animation: sp-exit 0.8s ease 2.5s forwards;
-            animation: sp-exit 0.8s ease 2.5s forwards;
+            -webkit-animation: sp-exit 0.8s ease 8s forwards;
+            animation: sp-exit 0.8s ease 8s forwards;
           }
           @-webkit-keyframes sp-exit {
             from { opacity: 1; }
@@ -97,6 +97,7 @@ export default function RootLayout({
             fontWeight: 300,
             color: "#1e5c3a",
             letterSpacing: "0.02em",
+          color: "#ffffff",
           }}>
             Aliva
           </p>
@@ -106,7 +107,7 @@ export default function RootLayout({
             fontWeight: 600,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#5b5b56",
+            color: "rgba(255,255,255,0.6)",
           }}>
             Un univers VIVUM
           </p>
