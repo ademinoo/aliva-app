@@ -97,6 +97,12 @@
   50%       { opacity: 1;    transform: scale(1);   }
 }
 
+@keyframes splash-exit {
+  0%   { opacity: 1; visibility: visible; }
+  99%  { opacity: 0; visibility: visible; }
+  100% { opacity: 0; visibility: hidden;  }
+}
+
 /* ─── Base ──────────────────────────────────────────────── */
 body {
   background: var(--color-background);

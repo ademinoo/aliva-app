@@ -1,64 +1,50 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
 /**
- * Écran de démarrage zen — visible dès le premier rendu,
- * disparaît après ~3s avec un fondu doux.
+ * Splash screen Aliva — rendu serveur, piloté 100% CSS.
+ * Aucun hook, aucun état JS : toujours présent dans le HTML initial,
+ * disparaît via animation CSS après 2.5s + 0.7s de fondu.
  */
 export function SplashScreen() {
-  const [visible, setVisible] = useState(true);
-  const [fading, setFading] = useState(false);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setFading(true), 2500);
-    const t2 = setTimeout(() => setVisible(false), 3200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
-
-  if (!visible) return null;
-
   return (
     <div
+      aria-hidden="true"
       style={{
-        position:       "fixed",
-        inset:          0,
-        zIndex:         999,
-        display:        "flex",
-        flexDirection:  "column",
-        alignItems:     "center",
-        justifyContent: "center",
-        backgroundColor:"#f7f4ef",
-        opacity:         fading ? 0 : 1,
-        transition:     "opacity 0.7s ease",
-        pointerEvents:   fading ? "none" : "all",
+        position:        "fixed",
+        inset:           0,
+        zIndex:          999,
+        display:         "flex",
+        flexDirection:   "column",
+        alignItems:      "center",
+        justifyContent:  "center",
+        backgroundColor: "#f7f4ef",
+        /* Fondu sortie : 2.5s d'attente + 0.7s de fondu */
+        animation:       "splash-exit 0.7s ease 2.5s forwards",
       }}
     >
-      {/* Anneau expansif */}
+      {/* Anneau expansif 1 */}
       <div style={{
         position:     "absolute",
         width:        96,
         height:       96,
         borderRadius: "50%",
         border:       "1.5px solid #1e5c3a",
-        animation:    "splash-ring 2.2s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards",
+        animation:    "splash-ring 2.2s cubic-bezier(0.22,1,0.36,1) 0.4s forwards",
         opacity:      0,
       }} />
 
-      {/* Second anneau, plus doux */}
+      {/* Anneau expansif 2, plus doux */}
       <div style={{
         position:     "absolute",
         width:        96,
         height:       96,
         borderRadius: "50%",
         border:       "1px solid #cce8d8",
-        animation:    "splash-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.9s forwards",
+        animation:    "splash-ring 2.4s cubic-bezier(0.22,1,0.36,1) 0.8s forwards",
         opacity:      0,
       }} />
 
-      {/* Logo feuille */}
+      {/* Logo feuille — entre doucement puis respire */}
       <div style={{
-        animation: "splash-leaf-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both, splash-breathe 3.5s ease-in-out 0.9s infinite",
+        animation: "splash-leaf-in 0.9s cubic-bezier(0.22,1,0.36,1) both, splash-breathe 3.5s ease-in-out 0.9s infinite",
       }}>
         <svg
           viewBox="0 0 24 24"
@@ -67,7 +53,7 @@ export function SplashScreen() {
           strokeWidth="1.55"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ width: 48, height: 48 }}
+          style={{ width: 52, height: 52 }}
         >
           <path d="M12 15 C9 13 6 9 8 5 C10.5 3.5 13 7 12 11" />
           <path d="M12 15 C15 13 18 9 16 5 C13.5 3.5 11 7 12 11" />
@@ -78,13 +64,13 @@ export function SplashScreen() {
 
       {/* "Aliva" */}
       <p style={{
-        marginTop:     20,
-        fontFamily:    "var(--font-literata), Georgia, serif",
+        marginTop:     22,
+        fontFamily:    "Georgia, serif",
         fontSize:      "1.85rem",
         fontWeight:    300,
         color:         "#1e5c3a",
         letterSpacing: "0.02em",
-        animation:     "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both",
+        animation:     "splash-text-in 0.8s cubic-bezier(0.22,1,0.36,1) 0.45s both",
       }}>
         Aliva
       </p>
@@ -97,7 +83,7 @@ export function SplashScreen() {
         letterSpacing: "0.22em",
         textTransform: "uppercase",
         color:         "#5b5b56",
-        animation:     "splash-text-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both",
+        animation:     "splash-text-in 0.8s cubic-bezier(0.22,1,0.36,1) 0.75s both",
       }}>
         Un univers VIVUM
       </p>
@@ -106,7 +92,7 @@ export function SplashScreen() {
       <div style={{
         display:   "flex",
         gap:       8,
-        marginTop: 40,
+        marginTop: 44,
         animation: "splash-text-in 0.6s ease 1.1s both",
       }}>
         {[0, 1, 2].map((i) => (
