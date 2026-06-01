@@ -10,14 +10,10 @@ export function SplashScreen() {
   const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
 
   useEffect(() => {
-    if (sessionStorage.getItem("aliva-splash")) return;
     setPhase("in");
 
     const t1 = setTimeout(() => setPhase("out"), 2600);
-    const t2 = setTimeout(() => {
-      setPhase("hidden");
-      sessionStorage.setItem("aliva-splash", "1");
-    }, 3300);
+    const t2 = setTimeout(() => setPhase("hidden"), 3300);
 
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
