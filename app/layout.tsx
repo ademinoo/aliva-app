@@ -26,31 +26,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-/* ──────────────────────────────────────────────────────────
-   Script splash — crée le div AVANT que React charge,
-   donc jamais masqué par l'hydratation.
-   Exécuté par le parser HTML dès que le tag <script> est lu.
-────────────────────────────────────────────────────────── */
-const splashScript = `(function(){
-  var d=document.createElement('div');
-  d.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:#f7f4ef;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all';
-  d.innerHTML=
-    '<svg viewBox="0 0 24 24" fill="none" stroke="#1e5c3a" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" width="52" height="52">'
-    +'<path d="M12 15 C9 13 6 9 8 5 C10.5 3.5 13 7 12 11"/>'
-    +'<path d="M12 15 C15 13 18 9 16 5 C13.5 3.5 11 7 12 11"/>'
-    +'<path d="M12 11 C11 8 12 5.5 12 5.5 C12 5.5 13 8 12 11"/>'
-    +'<line x1="12" y1="15" x2="12" y2="20"/>'
-    +'</svg>'
-    +'<p style="margin-top:22px;font-family:Georgia,serif;font-size:1.85rem;font-weight:300;color:#1e5c3a;letter-spacing:.02em">Aliva</p>'
-    +'<p style="margin-top:10px;font-size:.6rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#5b5b56">Un univers VIVUM</p>';
-  document.body.appendChild(d);
-  setTimeout(function(){
-    d.style.transition='opacity .8s ease';
-    d.style.opacity='0';
-    setTimeout(function(){d.remove();},850);
-  },2500);
-})();`;
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -59,10 +34,84 @@ export default function RootLayout({
       lang="fr"
       className={`${literata.variable} ${nunitoSans.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {/* Script exécuté avant React — aucune dépendance framework */}
-        {/* eslint-disable-next-line @next/next/no-before-interactive-script-component */}
-        <script dangerouslySetInnerHTML={{ __html: splashScript }} />
+      <body className="min-h-full flex flex-col">
+        {/*
+          Splash screen — rendu serveur, dans l'arbre React (pas de suppression
+          à l'hydratation). Le <style precedence> est hissé dans le <head> par
+          React 18 avant tout rendu, donc la CSS est appliquée dès le premier pixel.
+        */}
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore — precedence est un prop React 18 non encore typé */}
+        <style precedence="high">{`
+          #aliva-sp {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background-color: #f7f4ef;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-animation: sp-exit 0.8s ease 2.5s forwards;
+            animation: sp-exit 0.8s ease 2.5s forwards;
+          }
+          @-webkit-keyframes sp-exit {
+            from { opacity: 1; }
+            to   { opacity: 0; visibility: hidden; }
+          }
+          @keyframes sp-exit {
+            from { opacity: 1; }
+            to   { opacity: 0; visibility: hidden; }
+          }
+        `}</style>
+
+        <div id="aliva-sp" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1e5c3a"
+            strokeWidth="1.55"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="52"
+            height="52"
+          >
+            <path d="M12 15 C9 13 6 9 8 5 C10.5 3.5 13 7 12 11" />
+            <path d="M12 15 C15 13 18 9 16 5 C13.5 3.5 11 7 12 11" />
+            <path d="M12 11 C11 8 12 5.5 12 5.5 C12 5.5 13 8 12 11" />
+            <line x1="12" y1="15" x2="12" y2="20" />
+          </svg>
+          <p style={{
+            marginTop: 22,
+            fontFamily: "Georgia, serif",
+            fontSize: "1.85rem",
+            fontWeight: 300,
+            color: "#1e5c3a",
+            letterSpacing: "0.02em",
+          }}>
+            Aliva
+          </p>
+          <p style={{
+            marginTop: 10,
+            fontSize: "0.6rem",
+            fontWeight: 600,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#5b5b56",
+          }}>
+            Un univers VIVUM
+          </p>
+        </div>
+
         {children}
       </body>
     </html>
