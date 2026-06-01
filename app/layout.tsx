@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Literata, Nunito_Sans } from "next/font/google";
 import "./globals.css";
+import { SplashScreen } from "@/components/ui/splash-screen";
 
 // Titres display — le serif chaleureux et moderne d'Aliva
 const literata = Literata({
@@ -36,7 +37,10 @@ export default function RootLayout({
       lang="fr"
       className={`${literata.variable} ${nunitoSans.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SplashScreen />
+        {children}
+      </body>
     </html>
   );
 }
