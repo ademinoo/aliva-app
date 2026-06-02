@@ -7,16 +7,8 @@ const DEV_SECRET = process.env.DEV_LOGIN_SECRET;
 export async function POST(request: Request) {
   // Bloqué si pas de secret configuré ou si secret ne correspond pas
   const { email, secret } = await request.json();
-  if (!DEV_SECRET || secret !== DEV_SECRET) {
-    return NextResponse.json({
-      error: "Unauthorized",
-      debug: {
-        secretReceived: secret,
-        secretLen: secret?.length,
-        envLen: DEV_SECRET?.length,
-        envSet: !!DEV_SECRET,
-      }
-    }, { status: 401 });
+  if (!DEV_SECRET || secret?.trim() !== DEV_SECRET.trim()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const supabase = createClient(
