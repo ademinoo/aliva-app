@@ -30,7 +30,7 @@ export default function AuthPage() {
     const res = await fetch("/api/dev-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, secret: "aliva-dev-2026" }),
     });
     const data = await res.json();
     if (data.link) setDevLink(data.link);

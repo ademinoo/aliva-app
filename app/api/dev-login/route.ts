@@ -1,8 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+// Route temporaire DEV uniquement — à supprimer avant le lancement
+const DEV_SECRET = process.env.DEV_LOGIN_SECRET;
+
 export async function POST(request: Request) {
-  const { email } = await request.json();
+  // Bloqué si pas de secret configuré ou si secret ne correspond pas
+  const { email, secret } = await request.json();
+  if (!DEV_SECRET || secret !== DEV_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,12 +20,9 @@ export async function POST(request: Request) {
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(".supabase.co", "")}/auth/confirm`,
-    },
+    options: { redirectTo: `${new URL(request.url).origin}/auth/confirm` },
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-
   return NextResponse.json({ link: data.properties?.action_link });
 }
