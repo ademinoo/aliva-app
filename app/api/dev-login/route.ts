@@ -24,5 +24,9 @@ export async function POST(request: Request) {
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ link: data.properties?.action_link });
+
+  const origin = new URL(request.url).origin;
+  const token_hash = data.properties?.hashed_token;
+  const link = `${origin}/auth/confirm?token_hash=${token_hash}&type=magiclink`;
+  return NextResponse.json({ link });
 }
