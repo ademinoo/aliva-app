@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { HeaderAliva } from "@/components/layout/header-aliva";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { BottomNav } from "@/components/ui/bottom-nav";
 
 const piliers = [
   {
@@ -162,6 +163,8 @@ export default function Home() {
           </Container>
         </section>
       </main>
+
+      <BottomNav />
 
       {/* Footer + disclaimer */}
       <footer className="border-t border-black/5 py-8">
