@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Aliva — Ton alliée santé",
   description:
     "Aliva croise les sagesses médicales du monde avec tes données pour te transmettre, chaque jour, le geste juste. Accompagnement éducatif au bien-être. Un univers VIVUM.",
+  icons: {
+    apple: "/logo-aliva-iphone.png",
+  },
 };
 
 export const viewport: Viewport = {
