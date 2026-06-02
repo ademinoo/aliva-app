@@ -39,7 +39,7 @@ export default function AuthPage() {
     if (data.link) {
       setDevLink(data.link);
     } else {
-      setErrorMsg("Erreur API : " + (data.error ?? JSON.stringify(data)));
+      setErrorMsg("Erreur API : " + JSON.stringify(data));
     }
     setLoading(false);
   }
