@@ -6,17 +6,34 @@ import { createClient } from "@/lib/supabase/client";
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [devLink, setDevLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
+    // Essai envoi email normal
     const supabase = createClient();
-    await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${location.origin}/auth/confirm` },
     });
-    setSent(true);
+
+    if (!error) {
+      setSent(true);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback : génération lien direct (dev)
+    const res = await fetch("/api/dev-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (data.link) setDevLink(data.link);
     setLoading(false);
   }
 
@@ -31,20 +48,25 @@ export default function AuthPage() {
           <line x1="12" y1="15" x2="12" y2="20" />
         </svg>
 
-        <h1 className="text-center font-title text-2xl font-light text-ink mb-2">
-          Aliva
-        </h1>
-        <p className="text-center text-sm text-ink-soft mb-8">
-          Ton alliée santé
-        </p>
+        <h1 className="text-center font-title text-2xl font-light text-ink mb-2">Aliva</h1>
+        <p className="text-center text-sm text-ink-soft mb-8">Ton alliée santé</p>
 
         {sent ? (
           <div className="rounded-card border border-aliva-pale bg-aliva-pale/30 p-6 text-center">
             <p className="text-sm font-medium text-aliva mb-1">Vérifie ta boîte mail</p>
             <p className="text-sm text-ink-soft">
-              On t&apos;a envoyé un lien de connexion à <strong>{email}</strong>.
-              Clique dessus pour accéder à Aliva.
+              Lien envoyé à <strong>{email}</strong>.
             </p>
+          </div>
+        ) : devLink ? (
+          <div className="rounded-card border border-aliva-pale bg-aliva-pale/30 p-6 text-center">
+            <p className="text-sm font-medium text-aliva mb-3">Clique pour accéder à Aliva</p>
+            <a
+              href={devLink}
+              className="inline-flex h-11 items-center justify-center rounded-pill bg-terracotta px-6 text-sm font-semibold text-cream"
+            >
+              Se connecter →
+            </a>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -67,10 +89,10 @@ export default function AuthPage() {
               disabled={loading}
               className="h-12 rounded-pill bg-terracotta text-sm font-semibold text-cream transition-all duration-200 hover:bg-terracotta/90 active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? "Envoi…" : "Recevoir mon lien →"}
+              {loading ? "Connexion…" : "Accéder à Aliva →"}
             </button>
             <p className="text-center text-xs text-ink-soft">
-              Aucun mot de passe. Connexion sécurisée par e-mail.
+              Aucun mot de passe. Connexion sécurisée.
             </p>
           </form>
         )}
