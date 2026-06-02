@@ -8,10 +8,12 @@ export default function AuthPage() {
   const [sent, setSent] = useState(false);
   const [devLink, setDevLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
 
     // Essai envoi email normal
     const supabase = createClient();
@@ -33,7 +35,12 @@ export default function AuthPage() {
       body: JSON.stringify({ email, secret: "aliva-dev-2026" }),
     });
     const data = await res.json();
-    if (data.link) setDevLink(data.link);
+    console.log("dev-login response:", data);
+    if (data.link) {
+      setDevLink(data.link);
+    } else {
+      setErrorMsg("Erreur API : " + (data.error ?? JSON.stringify(data)));
+    }
     setLoading(false);
   }
 
@@ -91,6 +98,11 @@ export default function AuthPage() {
             >
               {loading ? "Connexion…" : "Accéder à Aliva →"}
             </button>
+            {errorMsg && (
+              <p className="rounded-card bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-700 text-center">
+                {errorMsg}
+              </p>
+            )}
             <p className="text-center text-xs text-ink-soft">
               Aucun mot de passe. Connexion sécurisée.
             </p>
