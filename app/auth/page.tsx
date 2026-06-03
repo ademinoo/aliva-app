@@ -1,22 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type Step = "email" | "code" | "devlink";
+type Step = "email" | "sent";
 
 export default function AuthPage() {
-  const router = useRouter();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [devLink, setDevLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── Étape 1 : envoi du code ────────────────────────────────────
-  async function sendCode(e: React.FormEvent) {
+  async function sendLink(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -24,50 +19,17 @@ export default function AuthPage() {
     const supabase = createClient();
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${location.origin}/auth/confirm`,
+      },
     });
 
-    if (!otpError) {
-      setStep("code");
-      setLoading(false);
-      return;
-    }
-
-    // Fallback dev : génération lien direct
-    const res = await fetch("/api/dev-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, secret: "aliva-dev-2026" }),
-    });
-    const data = await res.json();
-    if (data.link) {
-      setDevLink(data.link);
-      setStep("devlink");
+    if (otpError) {
+      setError("Erreur d'envoi. Réessaie dans quelques secondes.");
     } else {
-      setError("Erreur d'envoi : " + (data.error ?? "inconnue"));
+      setStep("sent");
     }
-    setLoading(false);
-  }
-
-  // ─── Étape 2 : vérification du code ────────────────────────────
-  async function verifyCode(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const supabase = createClient();
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email,
-      token: code.trim(),
-      type: "email",
-    });
-
-    if (!verifyError) {
-      router.replace("/tableau-de-bord");
-      return;
-    }
-
-    setError("Code incorrect ou expiré. Vérifie ton mail ou recommence.");
     setLoading(false);
   }
 
@@ -87,9 +49,8 @@ export default function AuthPage() {
         <h1 className="mb-2 text-center font-title text-2xl font-light text-ink">Aliva</h1>
         <p className="mb-8 text-center text-sm text-ink-soft">Ton alliée santé</p>
 
-        {/* ── Étape 1 : email ── */}
         {step === "email" && (
-          <form onSubmit={sendCode} className="flex flex-col gap-4">
+          <form onSubmit={sendLink} className="flex flex-col gap-4">
             <div>
               <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-ink-soft">
                 Ton adresse e-mail
@@ -109,7 +70,7 @@ export default function AuthPage() {
               disabled={loading}
               className="h-12 rounded-pill bg-terracotta text-sm font-semibold text-cream transition-all duration-200 hover:bg-terracotta/90 active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? "Envoi…" : "Recevoir mon code →"}
+              {loading ? "Envoi…" : "Recevoir mon lien →"}
             </button>
             {error && (
               <p className="rounded-card border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">
@@ -117,67 +78,26 @@ export default function AuthPage() {
               </p>
             )}
             <p className="text-center text-xs text-ink-soft">
-              Un code à 6 chiffres sera envoyé à ton adresse. Aucun mot de passe.
+              Un lien de connexion sera envoyé à ton adresse. Aucun mot de passe.
             </p>
           </form>
         )}
 
-        {/* ── Étape 2 : code ── */}
-        {step === "code" && (
-          <form onSubmit={verifyCode} className="flex flex-col gap-4">
-            <div className="mb-2 rounded-card border border-aliva-pale bg-aliva-pale/30 p-4 text-center">
-              <p className="text-sm font-medium text-aliva">Code envoyé à</p>
-              <p className="mt-0.5 text-sm text-ink-soft">{email}</p>
-            </div>
-            <div>
-              <label htmlFor="code" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-ink-soft">
-                Code à 6 chiffres
-              </label>
-              <input
-                id="code"
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                placeholder="123456"
-                className="w-full rounded-card border border-black/10 bg-white/60 px-4 py-3 text-center text-2xl tracking-[0.3em] text-ink placeholder:text-ink-soft/30 focus:outline-none focus:ring-2 focus:ring-aliva/30"
-                autoFocus
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading || code.length < 6}
-              className="h-12 rounded-pill bg-terracotta text-sm font-semibold text-cream transition-all duration-200 hover:bg-terracotta/90 active:scale-[0.98] disabled:opacity-50"
-            >
-              {loading ? "Vérification…" : "Accéder à Aliva →"}
-            </button>
-            {error && (
-              <p className="rounded-card border border-red-200 bg-red-50 px-4 py-3 text-center text-xs text-red-700">
-                {error}
+        {step === "sent" && (
+          <div className="flex flex-col gap-4 text-center">
+            <div className="rounded-card border border-aliva-pale bg-aliva-pale/30 p-6">
+              <p className="text-sm font-medium text-aliva">Lien envoyé !</p>
+              <p className="mt-2 text-sm text-ink-soft">
+                Vérifie ta boîte mail à <span className="font-medium text-ink">{email}</span> et clique sur le lien.
               </p>
-            )}
+            </div>
             <button
               type="button"
-              onClick={() => { setStep("email"); setCode(""); setError(null); }}
+              onClick={() => { setStep("email"); setError(null); }}
               className="text-center text-xs text-ink-soft underline underline-offset-4"
             >
-              Renvoyer un code
+              Utiliser une autre adresse
             </button>
-          </form>
-        )}
-
-        {/* ── Fallback dev : lien direct ── */}
-        {step === "devlink" && devLink && (
-          <div className="rounded-card border border-aliva-pale bg-aliva-pale/30 p-6 text-center">
-            <p className="mb-3 text-sm font-medium text-aliva">Accès développeur</p>
-            <a
-              href={devLink}
-              className="inline-flex h-11 items-center justify-center rounded-pill bg-terracotta px-6 text-sm font-semibold text-cream"
-            >
-              Se connecter →
-            </a>
           </div>
         )}
 
