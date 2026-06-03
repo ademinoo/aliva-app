@@ -32,10 +32,16 @@ export default function ConfirmPage() {
         if (!error) { router.replace(next); return; }
       }
 
-      // Cas 3 : token_hash OTP
+      // Cas 3 : token_hash (OTP ou PKCE via template email)
       const token_hash = searchParams.get("token_hash");
       const type = searchParams.get("type") as "email" | "magiclink" | null;
       if (token_hash && type) {
+        // Token PKCE généré par Supabase (préfixe pkce_) → exchange direct
+        if (token_hash.startsWith("pkce_")) {
+          const { error } = await supabase.auth.exchangeCodeForSession(token_hash);
+          if (!error) { router.replace(next); return; }
+        }
+        // Token OTP classique
         const { error } = await supabase.auth.verifyOtp({ token_hash, type });
         if (!error) { router.replace(next); return; }
       }
