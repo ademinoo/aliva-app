@@ -1,13 +1,97 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { CircleScore } from "@/components/ui/circle-score";
 import { HeaderApp } from "@/components/layout/header-app";
 
-const PISTES = [
-  { label: "Énergie",   dots: 2, icon: "⚡", accent: "text-aliva",      bg: "bg-aliva-pale/60"     },
-  { label: "Sommeil",   dots: 1, icon: "🌙", accent: "text-aliva",      bg: "bg-aliva-pale/60"     },
-  { label: "Stress",    dots: 1, icon: "🌀", accent: "text-terracotta", bg: "bg-terracotta/8"      },
-  { label: "Digestion", dots: 3, icon: "🌿", accent: "text-aliva",      bg: "bg-aliva-pale/60"     },
-];
+// ─── Types & helpers ───────────────────────────────────────────────
+
+type Profile = {
+  prenom: string | null;
+  niveau_energie: number | null;
+  qualite_sommeil: number | null;
+  niveau_stress: number | null;
+  activite_physique: string | null;
+  questionnaire_reponses: Record<string, unknown> | null;
+};
+
+const ACTIVITE_SCORE: Record<string, number> = {
+  sedentaire: 0.2, leger: 0.4, modere: 0.6, actif: 0.8, intensif: 1.0,
+};
+
+const DIGESTION_SCORE: Record<string, number> = {
+  "Impeccable": 1.0,
+  "Ballonnements fréquents": 0.4,
+  "Constipation": 0.35,
+  "Diarrhées": 0.3,
+  "Brûlures d'estomac": 0.35,
+};
+
+function computeScores(p: Profile) {
+  const energie  = p.niveau_energie  != null ? p.niveau_energie / 10 : 0.6;
+  const sommeil  = p.qualite_sommeil != null ? p.qualite_sommeil / 5 : 0.6;
+  const stress   = p.niveau_stress   != null ? (6 - p.niveau_stress) / 5 : 0.5;
+  const activite = ACTIVITE_SCORE[p.activite_physique ?? ""] ?? 0.5;
+  const digRaw   = (p.questionnaire_reponses?.digestion as string) ?? "";
+  const digestion = DIGESTION_SCORE[digRaw] ?? 0.7;
+
+  const global = Math.round(
+    energie   * 25 +
+    sommeil   * 25 +
+    stress    * 25 +
+    activite  * 15 +
+    digestion * 10,
+  );
+
+  return { energie, sommeil, stress, activite, digestion, global };
+}
+
+function toDots(s: number) {
+  return s >= 0.67 ? 3 : s >= 0.34 ? 2 : 1;
+}
+
+function dotStyle(dots: number) {
+  if (dots === 3) return { accent: "text-aliva",      bg: "bg-aliva-pale/60" };
+  if (dots === 2) return { accent: "text-amber-500",  bg: "bg-amber-50"      };
+  return              { accent: "text-terracotta", bg: "bg-terracotta/8"  };
+}
+
+// ─── Priority copy per dimension ───────────────────────────────────
+
+const PRIORITIES: Record<string, { titre: string; desc: string }> = {
+  energie: {
+    titre: "Recharger ton énergie cellulaire.",
+    desc: "On commence par des ajustements simples pour soutenir tes mitochondries — lumière matinale, hydratation, et timing des repas.",
+  },
+  sommeil: {
+    titre: "Améliorer la qualité de ton sommeil.",
+    desc: "La fenêtre 22h–2h est la plus réparatrice. Quelques rituels du soir peuvent radicalement changer ta récupération.",
+  },
+  stress: {
+    titre: "Réguler ton système nerveux.",
+    desc: "On commence par des ajustements simples pour abaisser le niveau de cortisol en fin de journée.",
+  },
+  activite: {
+    titre: "Intégrer le mouvement dans ta journée.",
+    desc: "10 minutes de marche après les repas suffisent pour réduire la glycémie et améliorer l'énergie.",
+  },
+  digestion: {
+    titre: "Prendre soin de ton axe intestin-cerveau.",
+    desc: "L'intestin produit 90% de ta sérotonine. Des ajustements alimentaires simples changeront ton humeur et ton énergie.",
+  },
+};
+
+function findPriorityKey(s: ReturnType<typeof computeScores>) {
+  return [
+    { key: "energie",   v: s.energie   },
+    { key: "sommeil",   v: s.sommeil   },
+    { key: "stress",    v: s.stress    },
+    { key: "activite",  v: s.activite  },
+    { key: "digestion", v: s.digestion },
+  ].sort((a, b) => a.v - b.v)[0].key;
+}
+
+// ─── UI helpers ────────────────────────────────────────────────────
 
 function Dots({ filled, accent }: { filled: number; accent: string }) {
   return (
@@ -15,19 +99,55 @@ function Dots({ filled, accent }: { filled: number; accent: string }) {
       {[1, 2, 3].map((i) => (
         <span
           key={i}
-          className={cn(
-            "h-2 w-2 rounded-full",
-            i <= filled ? accent.replace("text-", "bg-") : "bg-black/12",
-          )}
+          className={`h-2 w-2 rounded-full ${
+            i <= filled ? accent.replace("text-", "bg-") : "bg-black/12"
+          }`}
         />
       ))}
     </span>
   );
 }
 
-function cn(...c: (string | undefined)[]) { return c.filter(Boolean).join(" "); }
+function cn(...c: (string | undefined)[]) {
+  return c.filter(Boolean).join(" ");
+}
 
-export default function Portrait() {
+// ─── Page ──────────────────────────────────────────────────────────
+
+export default async function Portrait() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth");
+
+  const { data: raw } = await supabase
+    .from("profiles")
+    .select("prenom, niveau_energie, qualite_sommeil, niveau_stress, activite_physique, questionnaire_reponses")
+    .eq("id", user.id)
+    .single();
+
+  const profile: Profile = raw ?? {
+    prenom: null, niveau_energie: null, qualite_sommeil: null,
+    niveau_stress: null, activite_physique: null, questionnaire_reponses: null,
+  };
+
+  const scores      = computeScores(profile);
+  const priorityKey = findPriorityKey(scores);
+  const priority    = PRIORITIES[priorityKey];
+
+  const PISTES = [
+    { label: "Énergie",   icon: "⚡", dots: toDots(scores.energie),   ...dotStyle(toDots(scores.energie))   },
+    { label: "Sommeil",   icon: "🌙", dots: toDots(scores.sommeil),   ...dotStyle(toDots(scores.sommeil))   },
+    { label: "Stress",    icon: "🌀", dots: toDots(scores.stress),    ...dotStyle(toDots(scores.stress))    },
+    { label: "Digestion", icon: "🌿", dots: toDots(scores.digestion), ...dotStyle(toDots(scores.digestion)) },
+  ];
+
+  const prenom = profile.prenom;
+  const intro  = scores.global >= 75
+    ? "Un bel équilibre global. On affine les derniers points."
+    : scores.global >= 50
+    ? "Une base solide, avec de belles opportunités d'optimisation."
+    : "Plusieurs axes à travailler — chaque action compte double maintenant.";
+
   return (
     <div className="flex min-h-screen flex-col bg-cream">
       <HeaderApp backHref="/onboarding" />
@@ -43,22 +163,22 @@ export default function Portrait() {
             style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
             className="text-[2rem] font-light leading-snug text-ink"
           >
-            Voilà ce qu&apos;Aliva<br />
+            {prenom ? `${prenom}, voilà` : "Voilà"} ce qu&apos;Aliva<br />
             <span className="italic text-aliva">observe.</span>
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-            Votre première lecture globale, basée sur vos réponses.
+            Ta première lecture globale, basée sur tes réponses.
           </p>
         </div>
 
-        {/* ── Score — sur fond blanc arrondi ── */}
+        {/* ── Score ── */}
         <div
           className="mx-5 flex flex-col items-center rounded-[1.5rem] bg-white py-8"
           style={{ animation: "fade-in .6s cubic-bezier(.22,1,.36,1) .1s both" }}
         >
-          <CircleScore score={68} label="ÉQUILIBRE" size={200} />
+          <CircleScore score={scores.global} label="ÉQUILIBRE" size={200} />
           <p className="mt-4 px-6 text-center text-sm leading-relaxed text-ink-soft">
-            Une base solide, avec de belles opportunités d&apos;optimisation.
+            {intro}
           </p>
         </div>
 
@@ -71,7 +191,6 @@ export default function Portrait() {
             Pistes d&apos;exploration
           </p>
 
-          {/* Liste en une seule carte */}
           <div className="overflow-hidden rounded-[1.25rem] bg-white">
             {PISTES.map((p, i) => (
               <div
@@ -94,7 +213,7 @@ export default function Portrait() {
           </div>
         </div>
 
-        {/* ── Priorité — bloc couleur plein ── */}
+        {/* ── Priorité ── */}
         <div
           className="mx-5 mt-5 rounded-[1.25rem] bg-aliva-pale/70 px-5 py-6"
           style={{ animation: "fade-up .4s cubic-bezier(.22,1,.36,1) .5s both" }}
@@ -106,11 +225,10 @@ export default function Portrait() {
             style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
             className="mt-2 text-[1.4rem] font-light leading-snug text-ink"
           >
-            Réguler ton système nerveux.
+            {priority.titre}
           </p>
           <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">
-            On commence par des ajustements simples pour abaisser le niveau
-            de cortisol en fin de journée.
+            {priority.desc}
           </p>
         </div>
 
@@ -126,6 +244,7 @@ export default function Portrait() {
             Voir mon premier plan →
           </Link>
         </div>
+
       </main>
     </div>
   );
