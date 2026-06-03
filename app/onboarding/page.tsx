@@ -71,19 +71,8 @@ function buildProfilePatch(answers: Answers) {
     "Sédentaire (bureau toute la journée)": "sedentaire",
     "Un peu (quelques marches)": "leger",
     "Modéré (30 min / jour)": "modere",
-    "Actif (sport régulier)": "intense",
-    "Intensif (entraînements fréquents)": "intense",
-  };
-  const regimeMap: Record<string, string> = {
-    "Omnivore": "omnivore", "Flexitarien": "flexitarien", "Végétarien": "vegetarien",
-    "Végan": "vegan", "Paléo": "omnivore", "Sans gluten": "autre", "Méditerranéen": "omnivore",
-  };
-  const reveilMap: Record<string, number> = {
-    "Reposé": 5, "Fatigué mais ça passe": 3, "Épuisé": 1, "Variable": 3,
-  };
-  const stressMap: Record<string, number> = {
-    "Plutôt bien": 1, "Je suis souvent tendu": 3, "Anxiété régulière": 4,
-    "Ça affecte mon sommeil": 4, "Ça affecte mes relations": 5,
+    "Actif (sport régulier)": "actif",
+    "Intensif (entraînements fréquents)": "intensif",
   };
 
   const horaires = (answers.horaires as string) ?? "";
@@ -97,30 +86,30 @@ function buildProfilePatch(answers: Answers) {
   };
 
   return {
-    prenom: (answers.prenom as string) || null,
-    age: answers.age ? Number(answers.age) : null,
-    objectifs: answers.objectif_principal ? [answers.objectif_principal as string] : [],
-    qualite_sommeil: reveilMap[answers.reveil as string] ?? null,
-    niveau_stress: stressMap[answers.stress as string] ?? null,
-    niveau_energie: typeof answers.energie === "number" ? answers.energie : null,
-    activite_physique: activiteMap[answers.activite as string] ?? null,
-    type_alimentation: regimeMap[answers.regime as string] ?? null,
-    poids_kg: answers.poids ? parseFloat(answers.poids as string) : null,
-    taille_cm: answers.taille ? parseInt(answers.taille as string) : null,
-    notification_preferences: {
-      matin: true,
-      midi: false,
-      soir: true,
-      heure_lever: heureLever?.trim() || null,
-      heure_coucher: heureCoucher?.trim() || null,
-    },
-    questionnaire_reponses: {
-      ...answers,
-      tour_taille_cm: answers.tour_taille ?? null,
-      budget_complements: budgetMap[budgetRaw] ?? null,
-    },
-    onboarding_complete: true,
-    onboarding_etape: QUESTIONS.length,
+    prenom:            (answers.prenom as string) || null,
+    age:               answers.age ? Number(answers.age) : null,
+    objectif_principal:(answers.objectif_principal as string) || null,
+    objectif_sportif:  (answers.objectif_sportif as string) || null,
+    pathologies:       Array.isArray(answers.pathologies) ? answers.pathologies : [],
+    medicaments:       (answers.medicaments as string) || null,
+    energie_score:     typeof answers.energie === "number" ? answers.energie : null,
+    heure_coucher:     heureCoucher?.trim() || null,
+    heure_lever:       heureLever?.trim() || null,
+    qualite_sommeil:   (answers.reveil as string) || null,
+    regime:            (answers.regime as string) || null,
+    digestion:         (answers.digestion as string) || null,
+    niveau_activite:   activiteMap[answers.activite as string] ?? null,
+    douleurs:          Array.isArray(answers.douleurs) ? answers.douleurs : [],
+    niveau_stress:     (answers.stress as string) || null,
+    emotion:           (answers.emotion as string) || null,
+    dosha:             (answers.dosha as string) || null,
+    poids_kg:          answers.poids ? parseFloat(answers.poids as string) : null,
+    taille_cm:         answers.taille ? parseInt(answers.taille as string) : null,
+    tour_taille_cm:    answers.tour_taille ? parseFloat(answers.tour_taille as string) : null,
+    budget_complements:budgetMap[budgetRaw] ?? null,
+    wearable:          (answers.wearable as string) || null,
+    pourquoi_profond:  (answers.pourquoi as string) || null,
+    photo_langue_url:  (answers.photo_langue as string) || null,
   };
 }
 

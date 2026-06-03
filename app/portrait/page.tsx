@@ -4,15 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 import { CircleScore } from "@/components/ui/circle-score";
 import { HeaderApp } from "@/components/layout/header-app";
 
-// ─── Types & helpers ───────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────
 
 type Profile = {
   prenom: string | null;
-  niveau_energie: number | null;
-  qualite_sommeil: number | null;
-  niveau_stress: number | null;
-  activite_physique: string | null;
-  questionnaire_reponses: Record<string, unknown> | null;
+  energie_score: number | null;
+  qualite_sommeil: string | null;
+  niveau_stress: string | null;
+  niveau_activite: string | null;
+  digestion: string | null;
+};
+
+// ─── Score maps (text → 0-1) ────────────────────────────────────────
+
+const SOMMEIL_SCORE: Record<string, number> = {
+  "Reposé": 1.0, "Variable": 0.55, "Fatigué mais ça passe": 0.45, "Épuisé": 0.15,
+};
+
+const STRESS_SCORE: Record<string, number> = {
+  "Plutôt bien": 1.0, "Je suis souvent tendu": 0.5,
+  "Anxiété régulière": 0.3, "Ça affecte mon sommeil": 0.2, "Ça affecte mes relations": 0.15,
 };
 
 const ACTIVITE_SCORE: Record<string, number> = {
@@ -20,20 +31,18 @@ const ACTIVITE_SCORE: Record<string, number> = {
 };
 
 const DIGESTION_SCORE: Record<string, number> = {
-  "Impeccable": 1.0,
-  "Ballonnements fréquents": 0.4,
-  "Constipation": 0.35,
-  "Diarrhées": 0.3,
-  "Brûlures d'estomac": 0.35,
+  "Impeccable": 1.0, "Ballonnements fréquents": 0.4,
+  "Constipation": 0.35, "Diarrhées": 0.3, "Brûlures d'estomac": 0.35,
 };
 
+// ─── Score computation ──────────────────────────────────────────────
+
 function computeScores(p: Profile) {
-  const energie  = p.niveau_energie  != null ? p.niveau_energie / 10 : 0.6;
-  const sommeil  = p.qualite_sommeil != null ? p.qualite_sommeil / 5 : 0.6;
-  const stress   = p.niveau_stress   != null ? (6 - p.niveau_stress) / 5 : 0.5;
-  const activite = ACTIVITE_SCORE[p.activite_physique ?? ""] ?? 0.5;
-  const digRaw   = (p.questionnaire_reponses?.digestion as string) ?? "";
-  const digestion = DIGESTION_SCORE[digRaw] ?? 0.7;
+  const energie  = p.energie_score  != null ? p.energie_score / 10 : 0.6;
+  const sommeil  = SOMMEIL_SCORE[p.qualite_sommeil ?? ""]  ?? 0.6;
+  const stress   = STRESS_SCORE[p.niveau_stress ?? ""]    ?? 0.5;
+  const activite = ACTIVITE_SCORE[p.niveau_activite ?? ""] ?? 0.5;
+  const digestion = DIGESTION_SCORE[p.digestion ?? ""]    ?? 0.7;
 
   const global = Math.round(
     energie   * 25 +
@@ -56,7 +65,7 @@ function dotStyle(dots: number) {
   return              { accent: "text-terracotta", bg: "bg-terracotta/8"  };
 }
 
-// ─── Priority copy per dimension ───────────────────────────────────
+// ─── Priority copy ──────────────────────────────────────────────────
 
 const PRIORITIES: Record<string, { titre: string; desc: string }> = {
   energie: {
@@ -91,7 +100,7 @@ function findPriorityKey(s: ReturnType<typeof computeScores>) {
   ].sort((a, b) => a.v - b.v)[0].key;
 }
 
-// ─── UI helpers ────────────────────────────────────────────────────
+// ─── UI helpers ─────────────────────────────────────────────────────
 
 function Dots({ filled, accent }: { filled: number; accent: string }) {
   return (
@@ -112,7 +121,7 @@ function cn(...c: (string | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
-// ─── Page ──────────────────────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────────────
 
 export default async function Portrait() {
   const supabase = await createClient();
@@ -121,13 +130,13 @@ export default async function Portrait() {
 
   const { data: raw } = await supabase
     .from("profiles")
-    .select("prenom, niveau_energie, qualite_sommeil, niveau_stress, activite_physique, questionnaire_reponses")
+    .select("prenom, energie_score, qualite_sommeil, niveau_stress, niveau_activite, digestion")
     .eq("id", user.id)
     .single();
 
   const profile: Profile = raw ?? {
-    prenom: null, niveau_energie: null, qualite_sommeil: null,
-    niveau_stress: null, activite_physique: null, questionnaire_reponses: null,
+    prenom: null, energie_score: null, qualite_sommeil: null,
+    niveau_stress: null, niveau_activite: null, digestion: null,
   };
 
   const scores      = computeScores(profile);
