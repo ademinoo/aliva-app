@@ -5,32 +5,56 @@ import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { LeafAvatar } from "@/components/ui/leaf-icon";
 import { cn } from "@/lib/cn";
+import { createClient } from "@/lib/supabase/client";
 
 interface Msg { id: number; from: "aliva" | "user"; text: string; }
 
-const INIT: Msg[] = [
-  { id: 1, from: "aliva", text: "Alors on ne rajoute rien. Ton corps demande de la marge. Aujourd'hui : 10 minutes dehors, sans objectif. C'est suffisant." },
-  { id: 2, from: "user",  text: "Je me sens un peu fatigué ce matin, je pensais sauter ma séance." },
-  { id: 3, from: "aliva", text: "C'est noté. Prends le temps qu'il te faut." },
-];
+function buildWelcome(prenom: string | null): Msg {
+  const name = prenom ? `${prenom}` : "";
+  return {
+    id: 1,
+    from: "aliva",
+    text: name
+      ? `Bonjour ${name}. Ton corps demande de la marge aujourd'hui. 10 minutes dehors, sans objectif. C'est suffisant.`
+      : "Bonjour. Ton corps demande de la marge aujourd'hui. 10 minutes dehors, sans objectif. C'est suffisant.",
+  };
+}
 
 const REPLIES: Record<string, string> = {
   "Je veux un conseil repas": "Pour ce midi : protéines + légumes + une poignée de noix. Évite les glucides seuls — la glycémie plonge 2h après et la fatigue s'installe.",
-  "Je veux respirer": "Protocole 365. Inspire 5 secondes par le nez, expire 5 secondes par la bouche. 6 cycles par minute, 5 minutes. C'est tout.",
-  "J'ai une question": "Je t'écoute. Pose-la — je te répondrai avec ce que je sais de ton profil.",
+  "Je veux respirer":          "Protocole 365. Inspire 5 secondes par le nez, expire 5 secondes par la bouche. 6 cycles par minute, 5 minutes. C'est tout.",
+  "J'ai une question":         "Je t'écoute. Pose-la — je te répondrai avec ce que je sais de ton profil.",
 };
 
 const CHIPS = Object.keys(REPLIES);
 
 export default function Chat() {
-  const [msgs, setMsgs] = useState<Msg[]>(INIT);
-  const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const idRef = useRef(INIT.length + 1);
+  const [prenom, setPrenom] = useState<string | null>(null);
+  const [msgs, setMsgs]     = useState<Msg[]>([]);
+  const [input, setInput]   = useState("");
+  const bottomRef           = useRef<HTMLDivElement>(null);
+  const idRef               = useRef(2);
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("prenom")
+        .eq("id", user.id)
+        .single();
+      const nom = (data as { prenom: string | null } | null)?.prenom ?? null;
+      setPrenom(nom);
+      setMsgs([buildWelcome(nom)]);
+    }
+    load();
+  }, []);
 
   function send(text: string) {
     if (!text.trim()) return;
-    const reply = REPLIES[text.trim()] ?? "C'est noté, Thomas. On y reviendra.";
+    const reply = REPLIES[text.trim()] ?? `C'est noté${prenom ? `, ${prenom}` : ""}. On y reviendra.`;
     setMsgs((p) => [
       ...p,
       { id: idRef.current++, from: "user",  text: text.trim() },
@@ -80,7 +104,7 @@ export default function Chat() {
           <div className="mb-3 flex flex-wrap gap-2">
             {CHIPS.map((c) => (
               <button key={c} type="button" onClick={() => send(c)}
-                className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-xs font-medium text-ink-soft transition-all hover:border-aliva/30 hover:text-aliva active:scale-95">
+                className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-xs font-medium text-ink transition-all hover:border-aliva/30 hover:text-aliva active:scale-95">
                 {c}
               </button>
             ))}

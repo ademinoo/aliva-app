@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LeafIcon } from "@/components/ui/leaf-icon";
 import { cn } from "@/lib/cn";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
   {
@@ -63,6 +64,7 @@ const NAV_LINKS = [
 
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
+  const [prenom, setPrenom] = useState<string | null>(null);
   const pathname = usePathname();
 
   // Ferme le drawer à chaque changement de page
@@ -73,6 +75,24 @@ export function HamburgerMenu() {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
+
+  // Charge le prénom depuis Supabase une seule fois
+  useEffect(() => {
+    async function loadPrenom() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("prenom")
+        .eq("id", user.id)
+        .single();
+      setPrenom((data as { prenom: string | null } | null)?.prenom ?? null);
+    }
+    loadPrenom();
+  }, []);
+
+  const initial = prenom ? prenom[0].toUpperCase() : "?";
 
   return (
     <>
@@ -129,14 +149,14 @@ export function HamburgerMenu() {
           </button>
         </div>
 
-        {/* Profil utilisateur (mock) */}
+        {/* Profil utilisateur */}
         <div className="flex items-center gap-3 border-b border-black/5 px-5 py-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-aliva-pale text-base font-semibold text-aliva">
-            T
+            {initial}
           </div>
           <div>
-            <p className="text-sm font-medium text-ink">Thomas</p>
-            <p className="text-xs text-ink-soft">Équilibre · semaine 3</p>
+            <p className="text-sm font-medium text-ink">{prenom ?? "Mon profil"}</p>
+            <p className="text-xs text-ink-soft">Découverte · semaine 1</p>
           </div>
         </div>
 
