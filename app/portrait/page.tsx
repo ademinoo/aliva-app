@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CircleScore } from "@/components/ui/circle-score";
 import { HeaderApp } from "@/components/layout/header-app";
+import { BottomNav } from "@/components/ui/bottom-nav";
 import { computeScores, findPriorityKey } from "@/lib/score";
 
 // ─── Types ─────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ export default async function Portrait() {
 
   return (
     <div className="flex min-h-screen flex-col bg-cream">
-      <HeaderApp backHref="/onboarding" />
+      <HeaderApp />
 
       <main className="flex-1 pb-16">
 
@@ -206,6 +207,8 @@ export default async function Portrait() {
         </div>
 
       </main>
+
+      <BottomNav />
     </div>
   );
 }
