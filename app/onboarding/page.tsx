@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
-import { LeafIcon } from "@/components/ui/leaf-icon";
+import { OrbeFeuille } from "@/components/ui/orbe-feuille";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -120,16 +120,24 @@ function Splash({ onStart }: { onStart: () => void }) {
     <div className="flex min-h-screen flex-col bg-cream" style={{ animation: "fade-in .5s ease both" }}>
       <div
         className="relative flex-1"
-        style={{ background: "linear-gradient(160deg, #c9a87c 0%, #d4b896 40%, #f7f4ef 100%)", minHeight: "52vh" }}
+        style={{ background: "linear-gradient(180deg, #cce8d8 0%, #f7f4ef 100%)", minHeight: "52vh" }}
       >
         <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: "linear-gradient(to bottom, transparent, #f7f4ef)" }} />
       </div>
       <div className="flex flex-col items-center px-7 pb-14 text-center" style={{ marginTop: "-2rem" }}>
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cream shadow-sm">
-          <LeafIcon className="h-7 w-7 text-aliva" />
+          <OrbeFeuille className="h-8 w-8 text-aliva" />
         </div>
-        <p style={{ fontFamily: "var(--font-literata), Georgia, serif" }} className="mt-4 text-2xl font-light text-aliva">Aliva</p>
-        <h1 style={{ fontFamily: "var(--font-literata), Georgia, serif" }} className="mt-5 text-[1.7rem] font-light leading-snug text-ink">
+        <p
+          style={{ fontFamily: "var(--font-fraunces), Georgia, serif", letterSpacing: "0.04em" }}
+          className="mt-4 text-2xl font-light text-aliva"
+        >
+          Aliva
+        </p>
+        <h1
+          style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
+          className="mt-5 text-[1.7rem] font-light leading-snug text-ink"
+        >
           Commençons par<br /><em className="text-aliva">te connaître.</em>
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-soft">
@@ -287,7 +295,7 @@ function SliderQuestion({ value, onChange, min, max }: { value: number | null; o
   return (
     <div>
       <div className="mb-5 flex items-center justify-center">
-        <span style={{ fontFamily: "var(--font-literata), Georgia, serif" }} className="text-5xl font-light text-aliva">
+        <span style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }} className="text-5xl font-light text-aliva">
           {val}
         </span>
         <span className="ml-2 text-lg text-ink-soft">/ {max}</span>
@@ -453,8 +461,18 @@ export default function Onboarding() {
     ? "[animation:slide-left_.28s_cubic-bezier(.22,1,.36,1)_both]"
     : "[animation:slide-right_.28s_cubic-bezier(.22,1,.36,1)_both]";
 
+  async function handleStart() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push("/auth?next=/onboarding");
+      return;
+    }
+    setShowSplash(false);
+  }
+
   // ─ Splash ─
-  if (showSplash) return <Splash onStart={() => setShowSplash(false)} />;
+  if (showSplash) return <Splash onStart={handleStart} />;
 
   return (
     <div className="flex min-h-screen flex-col bg-cream">
@@ -477,7 +495,7 @@ export default function Onboarding() {
       <div key={stepIndex} className={cn("flex flex-1 flex-col px-5 pt-5 pb-4", slideClass)}>
         <p className="mb-2 text-xs uppercase tracking-[.16em] text-ink-soft">{q.hint}</p>
         <h1
-          style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+          style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
           className="mb-8 text-[1.6rem] font-light leading-snug text-ink"
         >
           {q.question}

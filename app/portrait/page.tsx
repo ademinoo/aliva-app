@@ -121,7 +121,7 @@ export default async function Portrait() {
           style={{ animation: "fade-up .45s cubic-bezier(.22,1,.36,1) both" }}
         >
           <h1
-            style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+            style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
             className="text-[2rem] font-light leading-snug text-ink"
           >
             {prenom ? `${prenom}, voilà` : "Voilà"} ce qu&apos;Aliva<br />
@@ -183,7 +183,7 @@ export default async function Portrait() {
             Ta priorité cette semaine
           </p>
           <p
-            style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+            style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
             className="mt-2 text-[1.4rem] font-light leading-snug text-ink"
           >
             {priority.titre}

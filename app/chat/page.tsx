@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { LeafAvatar } from "@/components/ui/leaf-icon";
@@ -29,6 +30,7 @@ const REPLIES: Record<string, string> = {
 const CHIPS = Object.keys(REPLIES);
 
 export default function Chat() {
+  const router = useRouter();
   const [prenom, setPrenom] = useState<string | null>(null);
   const [msgs, setMsgs]     = useState<Msg[]>([]);
   const [input, setInput]   = useState("");
@@ -39,7 +41,7 @@ export default function Chat() {
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { router.replace("/auth"); return; }
       const { data } = await supabase
         .from("profiles")
         .select("prenom")
@@ -50,7 +52,7 @@ export default function Chat() {
       setMsgs([buildWelcome(nom)]);
     }
     load();
-  }, []);
+  }, [router]);
 
   function send(text: string) {
     if (!text.trim()) return;

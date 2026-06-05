@@ -1,11 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { LeafIcon } from "@/components/ui/leaf-icon";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PhotoPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) router.replace("/auth");
+    }
+    checkAuth();
+  }, [router]);
+
   return (
     <div className="flex min-h-screen flex-col bg-cream">
       <HeaderApp />
@@ -30,7 +44,7 @@ export default function PhotoPage() {
         {/* Titre */}
         <h1
           style={{
-            fontFamily: "var(--font-literata), Georgia, serif",
+            fontFamily: "var(--font-fraunces), Georgia, serif",
             animation: "fade-up .45s cubic-bezier(.22,1,.36,1) .1s both",
           }}
           className="mb-3 text-3xl font-light text-ink"

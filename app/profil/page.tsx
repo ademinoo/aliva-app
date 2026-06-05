@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
 import { Toggle } from "@/components/ui/toggle";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Profil() {
+  const router = useRouter();
   const [reveil,  setReveil]  = useState(true);
   const [coucher, setCoucher] = useState(true);
   const [silence, setSilence] = useState(false);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) router.replace("/auth");
+    }
+    checkAuth();
+  }, [router]);
 
   return (
     <div className="flex min-h-screen flex-col bg-cream">
@@ -22,13 +34,13 @@ export default function Profil() {
           style={{ animation: "fade-up .4s cubic-bezier(.22,1,.36,1) both" }}
         >
           <h1
-            style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+            style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
             className="text-3xl font-light text-ink"
           >
             Paramètres
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-            Personnalisez votre expérience Aliva.
+            Personnalise ton expérience Aliva.
           </p>
         </div>
 
@@ -44,7 +56,7 @@ export default function Profil() {
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
             <h2
-              style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+              style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-lg font-light text-ink"
             >
               Notifications
@@ -85,13 +97,13 @@ export default function Profil() {
 
           <div className="relative">
             <h2
-              style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+              style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-2xl font-light text-ink"
             >
               Aliva Premium
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-              Débloquez l&apos;analyse détaillée de vos repas et des conseils personnalisés.
+              Débloquer l&apos;analyse détaillée de tes repas et des conseils personnalisés.
             </p>
 
             {/* Prix */}
@@ -100,7 +112,7 @@ export default function Profil() {
                 Plan Équilibre
               </p>
               <p
-                style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+                style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
                 className="mt-1 text-5xl font-light text-ink"
               >
                 99<span className="text-2xl">€</span>

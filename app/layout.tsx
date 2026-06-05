@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Literata, Nunito_Sans } from "next/font/google";
+import { Fraunces, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const literata = Literata({
-  variable: "--font-literata",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["300", "400"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -35,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${literata.variable} ${nunitoSans.variable} h-full`}
+      className={`${fraunces.variable} ${nunitoSans.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
 

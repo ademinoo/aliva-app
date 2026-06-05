@@ -18,7 +18,7 @@ const TABS = [
   },
   {
     href: "/bilan",
-    label: "Plan",
+    label: "Bilan",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
         strokeLinecap="round" strokeLinejoin="round" className="h-[22px] w-[22px]">

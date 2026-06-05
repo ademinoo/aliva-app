@@ -1,27 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type Step = "email" | "sent";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) router.replace("/tableau-de-bord");
+    }
+    checkAuth();
+  }, [router]);
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const nextParam = new URLSearchParams(window.location.search).get("next") ?? "";
+    const redirectTo = `${location.origin}/auth/confirm${nextParam ? `?next=${encodeURIComponent(nextParam)}` : ""}`;
+
     const supabase = createClient();
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${location.origin}/auth/confirm`,
+        emailRedirectTo: redirectTo,
       },
     });
 

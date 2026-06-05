@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -69,6 +70,7 @@ function getDateFr() {
 // ─── Page ───────────────────────────────────────────────────────────
 
 export default function TableauDeBord() {
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [checked, setChecked] = useState<Set<number>>(new Set());
 
@@ -76,7 +78,7 @@ export default function TableauDeBord() {
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { router.replace("/auth"); return; }
       const { data } = await supabase
         .from("profiles")
         .select("prenom, energie_score, qualite_sommeil, niveau_stress, niveau_activite, digestion")
@@ -85,7 +87,7 @@ export default function TableauDeBord() {
       setProfile(data);
     }
     load();
-  }, []);
+  }, [router]);
 
   function toggle(id: number) {
     setChecked((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -114,7 +116,7 @@ export default function TableauDeBord() {
           <p className="text-xs tracking-[.14em] text-ink-soft uppercase">{getDateFr()}</p>
           <div className="mt-1 flex items-baseline justify-between gap-4">
             <h1
-              style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+              style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-4xl font-light leading-none text-ink"
             >
               {prenom ? `Bonjour ${prenom}` : "Bonjour"}
@@ -140,7 +142,7 @@ export default function TableauDeBord() {
         >
           <div className="flex items-baseline justify-between px-5 pt-5 pb-4">
             <h2
-              style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+              style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-xl font-light text-ink"
             >
               {prenom ? `Ton matin, ${prenom}` : "Ton matin"}
@@ -191,7 +193,7 @@ export default function TableauDeBord() {
         {done === total && (
           <p
             style={{ animation: "fade-up .35s cubic-bezier(.22,1,.36,1) both",
-              fontFamily: "var(--font-literata), Georgia, serif" }}
+              fontFamily: "var(--font-fraunces), Georgia, serif" }}
             className="px-5 pt-4 text-base font-light italic text-aliva"
           >
             {total} sur {total}. C&apos;est ancré.
