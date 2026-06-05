@@ -125,8 +125,8 @@ function Splash({ onStart }: { onStart: () => void }) {
         <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: "linear-gradient(to bottom, transparent, #f7f4ef)" }} />
       </div>
       <div className="flex flex-col items-center px-7 pb-14 text-center" style={{ marginTop: "-2rem" }}>
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cream shadow-sm">
-          <OrbeFeuille className="h-8 w-8 text-aliva" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-cream shadow-sm">
+          <OrbeFeuille className="h-12 w-12 text-aliva" />
         </div>
         <p
           style={{ fontFamily: "var(--font-fraunces), Georgia, serif", letterSpacing: "0.04em" }}
