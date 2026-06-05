@@ -117,26 +117,35 @@ function buildProfilePatch(answers: Answers) {
 
 function Splash({ onStart }: { onStart: () => void }) {
   return (
-    <div className="flex min-h-screen flex-col bg-cream" style={{ animation: "fade-in .5s ease both" }}>
+    <div className="relative flex min-h-screen flex-col bg-cream" style={{ animation: "fade-in .5s ease both" }}>
+
+      {/* Gradient haut */}
       <div
-        className="relative flex-1"
-        style={{ background: "linear-gradient(180deg, #cce8d8 0%, #f7f4ef 100%)", minHeight: "52vh" }}
+        className="w-full"
+        style={{ height: "48vh", background: "linear-gradient(180deg, #cce8d8 0%, #f7f4ef 100%)" }}
+      />
+
+      {/* Icône centrée à la jointure — positionnée en absolu, aucun risque de clipping */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-10"
+        style={{ top: "calc(48vh - 40px)" }}
       >
-        <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: "linear-gradient(to bottom, transparent, #f7f4ef)" }} />
-      </div>
-      <div className="flex flex-col items-center px-7 pb-14 text-center" style={{ marginTop: "-2rem" }}>
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-cream shadow-sm">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-cream shadow-md">
           <OrbeFeuille className="h-12 w-12 text-aliva" />
         </div>
+      </div>
+
+      {/* Contenu bas */}
+      <div className="flex flex-col items-center px-7 pb-14 text-center" style={{ paddingTop: "3.5rem" }}>
         <p
           style={{ fontFamily: "var(--font-fraunces), Georgia, serif", letterSpacing: "0.04em" }}
-          className="mt-4 text-2xl font-light text-aliva"
+          className="text-2xl font-light text-aliva"
         >
           Aliva
         </p>
         <h1
           style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
-          className="mt-5 text-[1.7rem] font-light leading-snug text-ink"
+          className="mt-4 text-[1.7rem] font-light leading-snug text-ink"
         >
           Commençons par<br /><em className="text-aliva">te connaître.</em>
         </h1>
