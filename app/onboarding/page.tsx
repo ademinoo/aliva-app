@@ -267,9 +267,21 @@ function ACSQuestion({ value, onChange }: { value: string; onChange: (v: string)
 
 // ─── Time pair question ────────────────────────────────────────────────────
 
+function sleepDuration(coucher: string, lever: string): string | null {
+  if (!coucher || !lever) return null;
+  const [ch, cm] = coucher.split(":").map(Number);
+  const [lh, lm] = lever.split(":").map(Number);
+  let minutes = (lh * 60 + lm) - (ch * 60 + cm);
+  if (minutes <= 0) minutes += 24 * 60; // passage minuit
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h}h de sommeil` : `${h}h${String(m).padStart(2, "0")} de sommeil`;
+}
+
 function TimePairQuestion({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parts = value ? value.split("|") : ["", ""];
   const [coucher, lever] = parts;
+  const duree = sleepDuration(coucher, lever);
 
   function update(field: "coucher" | "lever", v: string) {
     if (field === "coucher") onChange(`${v}|${lever}`);
@@ -277,25 +289,44 @@ function TimePairQuestion({ value, onChange }: { value: string; onChange: (v: st
   }
 
   return (
-    <div className="flex gap-4">
-      <div className="flex-1">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[.12em] text-ink-soft">Coucher</p>
-        <input
-          type="time"
-          value={coucher}
-          onChange={(e) => update("coucher", e.target.value)}
-          className="w-full rounded-xl border border-black/12 bg-white px-4 py-3.5 text-base text-ink outline-none focus:border-aliva"
-        />
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[.12em] text-ink-soft">Coucher</p>
+          <input
+            type="time"
+            value={coucher}
+            onChange={(e) => update("coucher", e.target.value)}
+            className="w-full rounded-xl border border-black/12 bg-white px-4 py-3.5 text-base text-ink outline-none focus:border-aliva"
+          />
+        </div>
+        <div className="flex-1">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[.12em] text-ink-soft">Lever</p>
+          <input
+            type="time"
+            value={lever}
+            onChange={(e) => update("lever", e.target.value)}
+            className="w-full rounded-xl border border-black/12 bg-white px-4 py-3.5 text-base text-ink outline-none focus:border-aliva"
+          />
+        </div>
       </div>
-      <div className="flex-1">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[.12em] text-ink-soft">Lever</p>
-        <input
-          type="time"
-          value={lever}
-          onChange={(e) => update("lever", e.target.value)}
-          className="w-full rounded-xl border border-black/12 bg-white px-4 py-3.5 text-base text-ink outline-none focus:border-aliva"
-        />
-      </div>
+      {duree && (
+        <div className="flex items-center gap-2 rounded-xl bg-aliva-pale/60 px-4 py-3" style={{ animation: "fade-in .25s ease both" }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1e5c3a" strokeWidth="1.8" strokeLinecap="round" className="h-4 w-4 shrink-0">
+            <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+          </svg>
+          <p className="text-sm font-medium text-aliva">{duree}</p>
+          {(() => {
+            const [ch, cm] = coucher.split(":").map(Number);
+            const [lh, lm] = lever.split(":").map(Number);
+            let mins = (lh * 60 + lm) - (ch * 60 + cm);
+            if (mins <= 0) mins += 24 * 60;
+            if (mins < 360) return <span className="ml-auto text-xs text-terracotta">En dessous des 6h recommandées</span>;
+            if (mins >= 420 && mins <= 540) return <span className="ml-auto text-xs text-aliva">Durée idéale</span>;
+            return null;
+          })()}
+        </div>
+      )}
     </div>
   );
 }
