@@ -172,11 +172,14 @@ function Splash({ onStart }: { onStart: () => void }) {
 function ProgressBar({ current, total }: { current: number; total: number }) {
   const pct = Math.round(((current + 1) / total) * 100);
   return (
-    <div className="h-1 w-full bg-black/8 rounded-full overflow-hidden">
-      <div
-        className="h-full bg-aliva rounded-full transition-all duration-500"
-        style={{ width: `${pct}%` }}
-      />
+    <div className="flex items-center gap-3">
+      <div className="h-2 flex-1 bg-black/8 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-aliva rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-xs tabular-nums text-ink-soft shrink-0">{pct}%</span>
     </div>
   );
 }
@@ -220,7 +223,7 @@ function ChoiceBtn({ label, selected, onClick }: { label: string; selected: bool
 // ─── ACS question (Alcool/Café/Sucre) ─────────────────────────────────────
 
 const ACS_ITEMS = ["Alcool", "Café", "Sucre"];
-const ACS_OPTS = ["Rare", "Modéré", "Excès"];
+const ACS_OPTS = ["Jamais", "Rare", "Modéré", "Excès"];
 
 function ACSQuestion({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parsed: Record<string, string> = {};
@@ -238,7 +241,7 @@ function ACSQuestion({ value, onChange }: { value: string; onChange: (v: string)
       {ACS_ITEMS.map((item) => (
         <div key={item}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[.12em] text-ink-soft">{item}</p>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {ACS_OPTS.map((opt) => {
               const sel = parsed[item] === opt;
               return (
@@ -545,7 +548,7 @@ export default function Onboarding() {
                 key={c}
                 label={c}
                 selected={raw === c}
-                onClick={() => { setAnswer(c); setTimeout(next, 180); }}
+                onClick={() => setAnswer(c)}
               />
             ))}
           </div>
@@ -609,23 +612,21 @@ export default function Onboarding() {
       </div>
 
       {/* CTA */}
-      {q.type !== "choice" && (
-        <div className="px-5 pb-10 pt-3">
-          <button
-            type="button"
-            onClick={next}
-            disabled={!isValid() || saving}
-            className={cn(
-              "h-[52px] w-full rounded-full text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[.98]",
-              isValid() && !saving
-                ? "bg-terracotta text-cream hover:bg-terracotta/90"
-                : "cursor-not-allowed bg-black/8 text-ink-soft",
-            )}
-          >
-            {saving ? "Enregistrement…" : stepIndex === QUESTIONS.length - 1 ? "Voir mon portrait →" : "Continuer →"}
-          </button>
-        </div>
-      )}
+      <div className="px-5 pb-10 pt-3">
+        <button
+          type="button"
+          onClick={next}
+          disabled={!isValid() || saving}
+          className={cn(
+            "h-[52px] w-full rounded-full text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[.98]",
+            isValid() && !saving
+              ? "bg-terracotta text-cream hover:bg-terracotta/90"
+              : "cursor-not-allowed bg-black/8 text-ink-soft",
+          )}
+        >
+          {saving ? "Enregistrement…" : stepIndex === QUESTIONS.length - 1 ? "Voir mon portrait →" : "Continuer →"}
+        </button>
+      </div>
     </div>
   );
 }
