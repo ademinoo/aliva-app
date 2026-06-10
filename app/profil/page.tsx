@@ -21,6 +21,9 @@ type Prefs = {
   coucher_actif: boolean;
   coucher_heure: string;
   silence_actif: boolean;
+  frequence: "2x" | "3x" | "surprise";
+  quiet_start: string;
+  quiet_end: string;
 };
 
 const DEFAULTS: Prefs = {
@@ -29,6 +32,9 @@ const DEFAULTS: Prefs = {
   coucher_actif: true,
   coucher_heure: "22:30",
   silence_actif: false,
+  frequence: "3x",
+  quiet_start: "22:00",
+  quiet_end: "08:00",
 };
 
 export default function Profil() {
@@ -49,7 +55,7 @@ export default function Profil() {
 
       const { data } = await supabase
         .from("notification_preferences")
-        .select("reveil_actif, reveil_heure, coucher_actif, coucher_heure, silence_actif")
+        .select("reveil_actif, reveil_heure, coucher_actif, coucher_heure, silence_actif, frequence, quiet_start, quiet_end")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -229,14 +235,64 @@ export default function Profil() {
             </div>
           </div>
 
+          {/* Fréquence */}
+          <div className="border-b border-black/5 px-5 py-4">
+            <p className="text-sm font-medium text-ink">Fréquence des messages</p>
+            <p className="mb-3 text-xs text-ink-soft">Combien de fois Aliva te contacte par jour</p>
+            <div className="flex gap-2">
+              {([
+                { key: "2x",      label: "2×/jour" },
+                { key: "3x",      label: "3×/jour" },
+                { key: "surprise", label: "Surprends-moi" },
+              ] as { key: Prefs["frequence"]; label: string }[]).map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => update("frequence", opt.key)}
+                  className={`flex-1 rounded-full border py-2 text-xs font-semibold transition-all ${
+                    prefs.frequence === opt.key
+                      ? "border-aliva bg-aliva-pale text-aliva"
+                      : "border-black/10 text-ink-soft hover:border-black/20"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Silence */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className={`flex items-center justify-between px-5 py-4 ${prefs.silence_actif ? "border-b border-black/5" : ""}`}>
             <div>
               <p className="text-sm font-medium text-ink">Périodes silencieuses</p>
               <p className="text-xs text-ink-soft">Aucune notification pendant les plages définies</p>
             </div>
             <Toggle checked={prefs.silence_actif} onChange={(v) => update("silence_actif", v)} label="Silence" />
           </div>
+
+          {/* Plages silence — visible seulement si activé */}
+          {prefs.silence_actif && (
+            <div className="grid grid-cols-2 gap-px bg-black/5">
+              <div className="flex flex-col gap-1 bg-cream/60 px-5 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[.14em] text-ink-soft">Début silence</p>
+                <input
+                  type="time"
+                  value={prefs.quiet_start}
+                  onChange={(e) => update("quiet_start", e.target.value)}
+                  className="text-sm font-medium tabular-nums text-ink bg-transparent outline-none"
+                />
+              </div>
+              <div className="flex flex-col gap-1 bg-cream/60 px-5 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[.14em] text-ink-soft">Fin silence</p>
+                <input
+                  type="time"
+                  value={prefs.quiet_end}
+                  onChange={(e) => update("quiet_end", e.target.value)}
+                  className="text-sm font-medium tabular-nums text-ink bg-transparent outline-none"
+                />
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Carte premium */}

@@ -204,19 +204,25 @@ export default function TableauDeBord() {
       }
     }
 
+    const scoreBienetre = profile ? computeScores(profile, joursActifs).global : 0;
+
     await supabase.from("gamification").upsert(
-      { user_id: userId, streak_actuel: newStreak, streak_record: newRecord, paliers_atteints: newPaliers, last_active_date: today, updated_at: new Date().toISOString() },
+      { user_id: userId, streak_actuel: newStreak, streak_record: newRecord, paliers_atteints: newPaliers, last_active_date: today, score_bienetre: scoreBienetre, updated_at: new Date().toISOString() },
       { onConflict: "user_id" }
     );
 
     setGamification({ streak_actuel: newStreak, streak_record: newRecord, paliers_atteints: newPaliers });
     if (celebration) setPalierMessage(celebration);
-  }, [userId]);
+  }, [userId, profile, joursActifs]);
 
   function toggle(id: string) {
     setChecked((prev) => {
+      const isAdding = !prev.has(id);
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      isAdding ? next.add(id) : next.delete(id);
+      if (isAdding && typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
       persistCheckin(next);
       return next;
     });
