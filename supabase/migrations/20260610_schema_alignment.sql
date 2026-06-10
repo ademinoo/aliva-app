@@ -11,12 +11,33 @@ ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS langue_indicateurs   JSONB,
   ADD COLUMN IF NOT EXISTS niveau_progressivite TEXT DEFAULT 'debut';
 
--- ── 2. Colonnes manquantes dans notification_preferences ──────────
+-- ── 2. notification_preferences (crée si absente, complète sinon) ──
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  user_id       UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  reveil_actif  BOOLEAN     NOT NULL DEFAULT true,
+  reveil_heure  TEXT        NOT NULL DEFAULT '07:00',
+  coucher_actif BOOLEAN     NOT NULL DEFAULT true,
+  coucher_heure TEXT        NOT NULL DEFAULT '22:30',
+  silence_actif BOOLEAN     NOT NULL DEFAULT false,
+  push_token    TEXT,
+  frequence     TEXT        NOT NULL DEFAULT '3x',
+  quiet_start   TEXT        NOT NULL DEFAULT '22:00',
+  quiet_end     TEXT        NOT NULL DEFAULT '08:00',
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Si la table existait déjà sans les nouvelles colonnes, on les ajoute
 ALTER TABLE notification_preferences
   ADD COLUMN IF NOT EXISTS push_token   TEXT,
   ADD COLUMN IF NOT EXISTS frequence    TEXT NOT NULL DEFAULT '3x',
   ADD COLUMN IF NOT EXISTS quiet_start  TEXT NOT NULL DEFAULT '22:00',
   ADD COLUMN IF NOT EXISTS quiet_end    TEXT NOT NULL DEFAULT '08:00';
+
+ALTER TABLE notification_preferences ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY IF NOT EXISTS "notif_prefs_own" ON notification_preferences FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- ── 3. Table subscriptions (Stripe — prêt pour intégration future) ─
 CREATE TABLE IF NOT EXISTS subscriptions (
