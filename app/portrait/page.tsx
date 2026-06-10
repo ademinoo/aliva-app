@@ -84,12 +84,12 @@ export default async function Portrait() {
     .from("profiles")
     .select("prenom, energie_score, qualite_sommeil, niveau_stress, niveau_activite, digestion")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  const profile: Profile = raw ?? {
-    prenom: null, energie_score: null, qualite_sommeil: null,
-    niveau_stress: null, niveau_activite: null, digestion: null,
-  };
+  // Pas de questionnaire complété → renvoi vers l'onboarding
+  if (!raw?.prenom) redirect("/onboarding");
+
+  const profile: Profile = raw as Profile;
 
   const scores      = computeScores(profile);
   const priorityKey = findPriorityKey(scores);

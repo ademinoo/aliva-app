@@ -16,17 +16,11 @@ export async function POST() {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  // Suppression des données dans l'ordre (enfants avant parent)
-  await admin.from("notification_preferences").delete().eq("user_id", user.id);
+  // Efface toutes les données questionnaire et check-ins, conserve le compte auth
   await admin.from("gamification").delete().eq("user_id", user.id);
   await admin.from("checkins").delete().eq("user_id", user.id);
+  await admin.from("notification_preferences").delete().eq("user_id", user.id);
   await admin.from("profiles").delete().eq("id", user.id);
-
-  // Suppression du compte auth
-  const { error } = await admin.auth.admin.deleteUser(user.id);
-  if (error) {
-    return NextResponse.json({ error: "Erreur lors de la suppression du compte" }, { status: 500 });
-  }
 
   return NextResponse.json({ success: true });
 }

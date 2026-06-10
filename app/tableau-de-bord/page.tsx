@@ -130,6 +130,11 @@ export default function TableauDeBord() {
           .gte("date", last7Iso),
       ]);
 
+      // Pas de questionnaire → renvoyer vers l'onboarding
+      if (!(profileRes.data as { prenom?: string | null } | null)?.prenom) {
+        router.replace("/onboarding");
+        return;
+      }
       setProfile(profileRes.data);
 
       if (checkinRes.data?.actions_cochees) {

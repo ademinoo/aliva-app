@@ -109,6 +109,16 @@ export default function Profil() {
     }
   }
 
+  async function resetProfile() {
+    setDeleting(true);
+    const res = await fetch("/api/reset-profile", { method: "POST" });
+    if (res.ok) {
+      window.location.href = "/onboarding";
+    } else {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-cream">
       <HeaderApp />
@@ -314,6 +324,23 @@ export default function Profil() {
           </div>
 
           {deleteStep === "idle" ? (
+            <>
+            <button
+              type="button"
+              onClick={resetProfile}
+              disabled={deleting}
+              className="flex w-full items-center gap-3 border-b border-black/5 px-5 py-4 text-left transition-colors hover:bg-amber-50/50 active:bg-amber-50 disabled:opacity-40"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.7"
+                strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-amber-700">Recommencer le questionnaire</p>
+                <p className="text-xs text-ink-soft">Efface tes réponses et ton historique, conserve ton compte</p>
+              </div>
+            </button>
             <button
               type="button"
               onClick={() => setDeleteStep("confirm")}
@@ -331,6 +358,7 @@ export default function Profil() {
                 <p className="text-xs text-ink-soft">Toutes tes données seront effacées définitivement</p>
               </div>
             </button>
+            </>
           ) : (
             <div className="px-5 py-5">
               <p className="text-sm font-medium text-ink">Confirme la suppression</p>
