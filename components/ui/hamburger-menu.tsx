@@ -130,7 +130,7 @@ export function HamburgerMenu() {
           <Link href="/" className="flex items-center gap-2 text-aliva">
             <LeafIcon className="h-6 w-6" />
             <span
-              style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+              style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-xl font-light tracking-[0.02em]"
             >
               Aliva

@@ -1,5 +1,3 @@
-// Logique de calcul du score bien-être, partagée entre portrait et tableau-de-bord.
-
 export type ScoreProfile = {
   energie_score:   number | null;
   qualite_sommeil: string | null;
@@ -39,20 +37,29 @@ const DIGESTION_SCORE: Record<string, number> = {
   "Brûlures d'estomac":      0.35,
 };
 
-export function computeScores(p: ScoreProfile) {
+/**
+ * joursActifs : nombre de jours avec au moins 1 action cochée sur les 7 derniers jours (0–7).
+ * Quand fourni, ajoute un bonus de régularité de 0 à +8 pts au score global.
+ */
+export function computeScores(p: ScoreProfile, joursActifs?: number) {
   const energie   = p.energie_score   != null ? p.energie_score / 10          : 0.6;
   const sommeil   = SOMMEIL_SCORE[p.qualite_sommeil ?? ""]                     ?? 0.6;
   const stress    = STRESS_SCORE[p.niveau_stress ?? ""]                        ?? 0.5;
   const activite  = ACTIVITE_SCORE[p.niveau_activite ?? ""]                    ?? 0.5;
   const digestion = DIGESTION_SCORE[p.digestion ?? ""]                         ?? 0.7;
 
-  const global = Math.round(
+  const regulariteBonus = joursActifs != null
+    ? Math.round((joursActifs / 7) * 8)
+    : 0;
+
+  const global = Math.min(100, Math.round(
     energie   * 25 +
     sommeil   * 25 +
     stress    * 25 +
     activite  * 15 +
-    digestion * 10,
-  );
+    digestion * 10 +
+    regulariteBonus,
+  ));
 
   return { energie, sommeil, stress, activite, digestion, global };
 }

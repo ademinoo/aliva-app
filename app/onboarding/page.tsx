@@ -9,8 +9,6 @@ import { OrbeFeuille } from "@/components/ui/orbe-feuille";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-type QType = "text" | "number" | "choice" | "multi" | "slider" | "time-pair" | "photo" | "acs";
-
 interface BaseQ {
   id: string;
   question: string;
@@ -85,9 +83,14 @@ function buildProfilePatch(answers: Answers) {
     "Longévité — 80 à 150€ / mois": "longevite",
   };
 
+  const acsRaw = (answers.alcool_cafe_sucre as string) ?? "";
+  let acsValue: Record<string, string> | null = null;
+  if (acsRaw) { try { acsValue = JSON.parse(acsRaw); } catch { /* ignore */ } }
+
   return {
     prenom:            (answers.prenom as string) || null,
     age:               answers.age ? Number(answers.age) : null,
+    ressenti:          (answers.ressenti as string) || null,
     objectif_principal:(answers.objectif_principal as string) || null,
     objectif_sportif:  (answers.objectif_sportif as string) || null,
     pathologies:       Array.isArray(answers.pathologies) ? answers.pathologies : [],
@@ -96,12 +99,18 @@ function buildProfilePatch(answers: Answers) {
     heure_coucher:     heureCoucher?.trim() || null,
     heure_lever:       heureLever?.trim() || null,
     qualite_sommeil:   (answers.reveil as string) || null,
+    rituels_soir:      (answers.rituels_soir as string) || null,
     regime:            (answers.regime as string) || null,
     digestion:         (answers.digestion as string) || null,
+    regularite_repas:  (answers.regularite_repas as string) || null,
+    alcool_cafe_sucre: acsValue,
     niveau_activite:   activiteMap[answers.activite as string] ?? null,
     douleurs:          Array.isArray(answers.douleurs) ? answers.douleurs : [],
+    effort:            (answers.effort as string) || null,
     niveau_stress:     (answers.stress as string) || null,
     emotion:           (answers.emotion as string) || null,
+    vie_sociale:       (answers.vie_sociale as string) || null,
+    temperature:       (answers.temperature as string) || null,
     dosha:             (answers.dosha as string) || null,
     poids_kg:          answers.poids ? parseFloat(answers.poids as string) : null,
     taille_cm:         answers.taille ? parseInt(answers.taille as string) : null,
@@ -509,6 +518,16 @@ export default function Onboarding() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push("/auth?next=/onboarding");
+      return;
+    }
+    // Si le profil est déjà rempli, rediriger vers le tableau de bord
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("prenom")
+      .eq("id", user.id)
+      .single();
+    if (existing?.prenom) {
+      router.replace("/tableau-de-bord");
       return;
     }
     setShowSplash(false);

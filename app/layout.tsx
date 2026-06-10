@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Nunito_Sans } from "next/font/google";
+import { PwaRegister } from "@/components/layout/pwa-register";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -20,8 +21,14 @@ export const metadata: Metadata = {
   title: "Aliva — Ton alliée santé",
   description:
     "Aliva croise les sagesses médicales du monde avec tes données pour te transmettre, chaque jour, le geste juste. Accompagnement éducatif au bien-être. Un univers VIVUM.",
+  manifest: "/manifest.json",
   icons: {
     apple: "/logo-aliva-iphone.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Aliva",
   },
 };
 
@@ -147,6 +154,7 @@ export default function RootLayout({
         </div>
 
         {children}
+        <PwaRegister />
       </body>
     </html>
   );

@@ -48,19 +48,19 @@ export function HeaderApp({ backHref, title }: HeaderAppProps) {
         {/* Centre : titre Aliva */}
         <span
           className="absolute left-1/2 -translate-x-1/2 text-xl font-light text-aliva"
-          style={{ fontFamily: "var(--font-literata), Georgia, serif" }}
+          style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
         >
           {title ?? "Aliva"}
         </span>
 
-        {/* Droite : cloche */}
-        <button
-          type="button"
-          aria-label="Notifications"
+        {/* Droite : cloche → paramètres */}
+        <Link
+          href="/profil"
+          aria-label="Paramètres notifications"
           className="text-ink-soft transition-opacity hover:opacity-70"
         >
           <BellIcon />
-        </button>
+        </Link>
       </Container>
     </header>
   );
