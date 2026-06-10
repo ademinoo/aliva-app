@@ -35,7 +35,8 @@ ALTER TABLE notification_preferences
 
 ALTER TABLE notification_preferences ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "notif_prefs_own" ON notification_preferences FOR ALL
+DROP POLICY IF EXISTS "notif_prefs_own" ON notification_preferences;
+CREATE POLICY "notif_prefs_own" ON notification_preferences FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
