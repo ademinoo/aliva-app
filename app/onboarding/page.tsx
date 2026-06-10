@@ -448,6 +448,7 @@ export default function Onboarding() {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY_ANSWERS);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [dir, setDir] = useState<"l" | "r">("l");
 
   const q = QUESTIONS[stepIndex];
@@ -496,16 +497,28 @@ export default function Onboarding() {
 
   async function save() {
     setSaving(true);
+    setSaveError(null);
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const patch = buildProfilePatch(answers);
-        await supabase.from("profiles").upsert({ id: user.id, ...patch });
+      if (!user) {
+        router.push("/auth?next=/onboarding");
+        return;
+      }
+      const patch = buildProfilePatch(answers);
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, ...patch }, { onConflict: "id" });
+
+      if (error) {
+        setSaveError("Impossible de sauvegarder ton profil. Réessaie dans quelques secondes.");
+        setSaving(false);
+        return;
       }
       router.push("/portrait");
     } catch {
-      router.push("/portrait");
+      setSaveError("Une erreur est survenue. Vérifie ta connexion et réessaie.");
+      setSaving(false);
     }
   }
 
@@ -663,6 +676,11 @@ export default function Onboarding() {
 
       {/* CTA */}
       <div className="px-5 pb-10 pt-3">
+        {saveError && (
+          <p className="mb-3 rounded-xl bg-terracotta/10 px-4 py-3 text-xs font-medium text-terracotta">
+            {saveError}
+          </p>
+        )}
         <button
           type="button"
           onClick={next}
