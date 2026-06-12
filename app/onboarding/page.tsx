@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -371,7 +371,7 @@ function SliderQuestion({ value, onChange, min, max }: { value: number | null; o
 
 // ─── Photo question ────────────────────────────────────────────────────────
 
-function PhotoQuestion({ value, onChange, questionId }: { value: string | null; onChange: (v: string) => void; questionId: string }) {
+function PhotoQuestion({ onChange, questionId }: { value: string | null; onChange: (v: string) => void; questionId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);

@@ -90,12 +90,13 @@ export default function CGU() {
             restent contextualisées au profil de l&apos;utilisateur et ne sont jamais génériques.
           </p>
 
-          <h2 className="mt-8 text-xl font-semibold text-ink">6. Abonnement et paiement</h2>
+          <h2 className="mt-8 text-xl font-semibold text-ink">6. Accès au service</h2>
           <p className="text-sm leading-relaxed text-ink-soft">
-            Aliva propose un plan gratuit (Découverte) et un plan payant (Équilibre à 99€/an).
-            L&apos;essai gratuit de 7 jours est proposé sans engagement. La garantie satisfait ou
-            remboursé est valable 30 jours après le premier paiement. Le remboursement se fait
-            par le même moyen de paiement, sans justification nécessaire.
+            L&apos;accès à Aliva est entièrement gratuit. L&apos;ensemble des fonctionnalités
+            (questionnaire, score de bien-être, actions quotidiennes, chat, journal de repas,
+            bilan hebdomadaire) est accessible sans abonnement, sans carte bancaire et sans
+            engagement. L&apos;utilisateur peut supprimer son compte et ses données à tout moment
+            depuis ses paramètres.
           </p>
 
           <h2 className="mt-8 text-xl font-semibold text-ink">7. Limitation de responsabilité</h2>

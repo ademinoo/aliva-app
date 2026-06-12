@@ -12,11 +12,6 @@ type ProfileRow = {
   created_at: string | null;
 };
 
-type CheckinCount = {
-  user_id: string;
-  count: number;
-};
-
 function timeAgo(iso: string | null): string {
   if (!iso) return "—";
   const diff = Date.now() - new Date(iso).getTime();
@@ -65,6 +60,8 @@ export default async function AdminPage() {
 
   const totalProfiles = (profiles ?? []).length;
   const actifs7j = Object.values(checkinCounts).filter((n) => n > 0).length;
+  const questionnairesComplets = (profiles ?? []).filter((p) => p.prenom).length;
+  const streaksActifs = Object.values(gamiMap).filter((g) => (g.streak_actuel ?? 0) > 0).length;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -86,10 +83,10 @@ export default async function AdminPage() {
         {/* KPIs */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
           {[
-            { label: "Inscrits total",     value: totalProfiles,    icon: "👤" },
-            { label: "Actifs 7 derniers jours", value: actifs7j,   icon: "🔥" },
-            { label: "Payants",            value: "—",              icon: "💳" },
-            { label: "NPS J+30",           value: "—",              icon: "⭐" },
+            { label: "Inscrits total",          value: totalProfiles,          icon: "👤" },
+            { label: "Actifs 7 derniers jours", value: actifs7j,               icon: "🔥" },
+            { label: "Questionnaires complétés", value: questionnairesComplets, icon: "✅" },
+            { label: "Streaks en cours",        value: streaksActifs,          icon: "⭐" },
           ].map((kpi) => (
             <div key={kpi.label} className="rounded-2xl bg-white px-5 py-5">
               <p className="text-2xl">{kpi.icon}</p>

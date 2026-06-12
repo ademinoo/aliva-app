@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HeaderApp } from "@/components/layout/header-app";
 import { BottomNav } from "@/components/ui/bottom-nav";
@@ -60,12 +61,12 @@ export default function Profil() {
         .maybeSingle();
 
       if (data) setPrefs(data as Prefs);
+
+      if (typeof Notification !== "undefined") {
+        setNotifPerm(Notification.permission);
+      }
     }
     load();
-
-    if (typeof Notification !== "undefined") {
-      setNotifPerm(Notification.permission);
-    }
   }, [router]);
 
   const save = useCallback(async (next: Prefs) => {
@@ -295,40 +296,27 @@ export default function Profil() {
           )}
         </section>
 
-        {/* Carte premium */}
+        {/* Carte accès complet */}
         <section
           className="relative mt-5 overflow-hidden rounded-[1.5rem] bg-[#ede8df] px-6 pb-7 pt-6"
           style={{ animation: "fade-up .4s cubic-bezier(.22,1,.36,1) .16s both" }}
         >
-          <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-gold/20" />
-          <div className="absolute -right-4 top-6 h-20 w-20 rounded-full bg-gold/12" />
+          <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-aliva/15" />
+          <div className="absolute -right-4 top-6 h-20 w-20 rounded-full bg-aliva/10" />
 
           <div className="relative">
             <h2
               style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="text-2xl font-light text-ink"
             >
-              Aliva Premium
+              Ton accès Aliva
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-              Débloquer l&apos;analyse détaillée de tes repas et des conseils encore plus personnalisés.
+              Toutes les fonctionnalités sont débloquées pour toi, sans abonnement ni carte bancaire.
             </p>
 
-            <div className="mt-5 rounded-[1rem] border border-black/8 bg-white/70 py-5 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-ink-soft">
-                Plan Équilibre
-              </p>
-              <p
-                style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
-                className="mt-1 text-5xl font-light text-ink"
-              >
-                99<span className="text-2xl">€</span>
-                <span className="text-lg font-normal text-ink-soft"> / an</span>
-              </p>
-            </div>
-
             <ul className="mt-5 flex flex-col gap-2.5">
-              {["Essai gratuit de 7 jours", "Garantie satisfait ou remboursé 30j", "Support prioritaire"].map((f) => (
+              {["Chat Aliva en accès libre", "Journal de repas & estimation des macros", "Bilan hebdomadaire et suivi complet"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5 text-sm text-ink">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#1e5c3a" strokeWidth="2" className="h-4 w-4 shrink-0">
                     <circle cx="12" cy="12" r="10" />
@@ -339,12 +327,12 @@ export default function Profil() {
               ))}
             </ul>
 
-            <button
-              type="button"
-              className="mt-6 h-[52px] w-full rounded-full bg-terracotta text-sm font-semibold tracking-wide text-cream shadow-sm transition-all hover:bg-terracotta/90 active:scale-[.98]"
+            <Link
+              href="/tableau-de-bord"
+              className="mt-6 flex h-[52px] w-full items-center justify-center rounded-full bg-terracotta text-sm font-semibold tracking-wide text-cream shadow-sm transition-all hover:bg-terracotta/90 active:scale-[.98]"
             >
-              Commencer l&apos;essai gratuit
-            </button>
+              Aller à mon tableau de bord →
+            </Link>
           </div>
         </section>
 

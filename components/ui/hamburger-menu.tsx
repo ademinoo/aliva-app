@@ -52,7 +52,7 @@ const NAV_LINKS = [
   {
     href: "/profil",
     label: "Paramètres",
-    sub: "Notifications et abonnement",
+    sub: "Notifications et confidentialité",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
         <circle cx="12" cy="12" r="3" />
@@ -68,6 +68,7 @@ export function HamburgerMenu() {
   const pathname = usePathname();
 
   // Ferme le drawer à chaque changement de page
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setOpen(false); }, [pathname]);
 
   // Empêche le scroll du body quand le drawer est ouvert
@@ -156,7 +157,7 @@ export function HamburgerMenu() {
           </div>
           <div>
             <p className="text-sm font-medium text-ink">{prenom ?? "Mon profil"}</p>
-            <p className="text-xs text-ink-soft">Découverte · semaine 1</p>
+            <p className="text-xs text-ink-soft">Accès complet · gratuit</p>
           </div>
         </div>
 

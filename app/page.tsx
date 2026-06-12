@@ -84,69 +84,15 @@ const BUDGET_PALIERS = [
   },
 ];
 
-const PLANS = [
-  {
-    name: "Découverte",
-    price: "0€",
-    period: "",
-    highlight: false,
-    badge: null,
-    features: [
-      "Questionnaire initial complet",
-      "Score de bien-être",
-      "3 actions quotidiennes",
-      "Chat Aliva (limité)",
-    ],
-    cta: "Commencer gratuitement",
-    href: "/onboarding",
-  },
-  {
-    name: "Équilibre",
-    price: "99€",
-    period: "/an",
-    highlight: true,
-    badge: "LE PLUS CHOISI",
-    features: [
-      "Tout Découverte",
-      "Bilan hebdomadaire complet",
-      "Chat Aliva illimité",
-      "Protocoles personnalisés",
-      "Suivi streak & gamification",
-      "7 jours d’essai offerts",
-    ],
-    cta: "Commencer l’essai",
-    href: "/onboarding",
-  },
-  {
-    name: "Performance",
-    price: "199€",
-    period: "/an",
-    highlight: false,
-    badge: null,
-    features: [
-      "Tout Équilibre",
-      "Analyse photo repas (IA)",
-      "Protocoles sportifs avancés",
-      "Intégration Apple Health",
-    ],
-    cta: "Choisir Performance",
-    href: "/onboarding",
-  },
-  {
-    name: "Longévité Expert",
-    price: "349€",
-    period: "/an",
-    highlight: false,
-    badge: null,
-    features: [
-      "Tout Performance",
-      "Suivi avec l’équipe Aliva",
-      "Accès experts partenaires",
-      "Protocoles longévité & prévention",
-    ],
-    cta: "Choisir Longévité",
-    href: "/onboarding",
-  },
+const INCLUS = [
+  "Questionnaire initial complet (30 questions)",
+  "Score de bien-être personnalisé",
+  "3 actions quotidiennes adaptées à ton profil",
+  "Chat Aliva en accès libre",
+  "Bilan hebdomadaire & suivi de progression",
+  "Journal de repas avec estimation des macros",
+  "Protocoles personnalisés des 8 gestes",
+  "Suivi streak & paliers",
 ];
 
 const EXPERTS = [
@@ -572,102 +518,59 @@ export default function Home() {
           </Container>
         </section>
 
-        {/* ══ PRICING ══════════════════════════════════════════════════════ */}
+        {/* ══ TOUT INCLUS ══════════════════════════════════════════════════ */}
         <section className="pb-16">
           <Container>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-soft">
-              Tarifs
+              L&apos;accès
             </p>
             <h2
               style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
               className="mt-4 text-3xl font-light leading-tight text-ink"
             >
-              Simple et transparent.{" "}
-              <span className="italic text-aliva">Sans surprise.</span>
+              Tout est inclus.{" "}
+              <span className="italic text-aliva">Gratuitement.</span>
             </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+              Aucune carte bancaire, aucun abonnement. Tu accèdes à
+              l&apos;intégralité de l&apos;accompagnement Aliva dès ton inscription.
+            </p>
 
-            <div className="mt-8 flex flex-col gap-4">
-              {PLANS.map((plan, i) => (
-                <div
-                  key={plan.name}
-                  className={`relative overflow-hidden rounded-[1.5rem] ${
-                    plan.highlight
-                      ? "border-2 border-aliva bg-white shadow-md"
-                      : "border border-black/8 bg-white"
-                  }`}
-                  style={{ animation: `fade-up .4s cubic-bezier(.22,1,.36,1) ${i * 70}ms both` }}
+            <div
+              className="mt-8 overflow-hidden rounded-[1.5rem] border-2 border-aliva bg-white"
+              style={{ animation: "fade-up .4s cubic-bezier(.22,1,.36,1) both" }}
+            >
+              <div className="bg-aliva px-5 py-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cream">
+                  Accès complet · 0€
+                </p>
+              </div>
+              <div className="px-5 py-6">
+                <ul className="space-y-3">
+                  {INCLUS.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-ink">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#1e5c3a" strokeWidth="2"
+                        className="mt-0.5 h-4 w-4 shrink-0">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M8 12l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href="/onboarding"
+                  className="mt-6 flex h-11 items-center justify-center rounded-full bg-terracotta text-sm font-semibold text-cream transition-all hover:bg-terracotta/90 active:scale-[.98]"
                 >
-                  {plan.badge && (
-                    <div className="bg-aliva px-5 py-1.5">
-                      <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cream">
-                        {plan.badge}
-                      </p>
-                    </div>
-                  )}
-                  <div className="px-5 py-5">
-                    <div className="flex items-baseline justify-between">
-                      <p className="font-semibold text-ink">{plan.name}</p>
-                      <p>
-                        <span
-                          style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
-                          className="text-2xl font-light text-ink"
-                        >
-                          {plan.price}
-                        </span>
-                        <span className="text-xs text-ink-soft">{plan.period}</span>
-                      </p>
-                    </div>
-
-                    <ul className="mt-4 space-y-2">
-                      {plan.features.map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-sm text-ink-soft">
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-aliva" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link
-                      href={plan.href}
-                      className={`mt-5 flex h-11 items-center justify-center rounded-full text-sm font-semibold transition-all active:scale-[.98] ${
-                        plan.highlight
-                          ? "bg-terracotta text-cream hover:bg-terracotta/90"
-                          : "border border-aliva/40 text-aliva hover:bg-aliva-pale/40"
-                      }`}
-                    >
-                      {plan.cta}
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                  Commencer gratuitement →
+                </Link>
+              </div>
             </div>
 
             <p className="mt-4 text-center text-xs text-ink-soft">
-              Paiement sécurisé · Résiliation sans frais · Données hébergées en Europe
+              Sans engagement · Résiliation à tout moment · Données hébergées en Europe
             </p>
-          </Container>
-        </section>
-
-        {/* ══ GARANTIE ═════════════════════════════════════════════════════ */}
-        <section className="pb-16">
-          <Container>
-            <div className="overflow-hidden rounded-[1.5rem] border border-aliva/20 bg-aliva-pale/40 px-6 py-7 text-center">
-              <p className="text-4xl">🛡️</p>
-              <h2
-                style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
-                className="mt-4 text-2xl font-light text-ink"
-              >
-                Garantie 30 jours.
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-                Si dans les 30 jours suivant ton premier paiement tu ne
-                constates aucun bénéfice, on te rembourse intégralement.
-                Sans justification nécessaire. Sans questions.
-              </p>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[.14em] text-aliva">
-                Remboursement par le même moyen de paiement sous 5 jours ouvrés.
-              </p>
-            </div>
           </Container>
         </section>
 

@@ -219,7 +219,7 @@ export default function TableauDeBord() {
     setChecked((prev) => {
       const isAdding = !prev.has(id);
       const next = new Set(prev);
-      isAdding ? next.add(id) : next.delete(id);
+      if (isAdding) next.add(id); else next.delete(id);
       if (isAdding && typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate(50);
       }
