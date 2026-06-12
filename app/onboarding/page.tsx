@@ -378,21 +378,18 @@ function PhotoQuestion({ onChange, questionId }: { value: string | null; onChang
 
   async function handleFile(file: File) {
     setUploading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); return; }
-
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/${questionId}-${Date.now()}.${ext}`;
-
-    const { data, error } = await supabase.storage
-      .from("photos-questionnaire")
-      .upload(path, file, { upsert: true });
-
-    if (!error && data) {
-      const { data: url } = supabase.storage.from("photos-questionnaire").getPublicUrl(data.path);
-      onChange(url.publicUrl);
-      setPreview(URL.createObjectURL(file));
+    setPreview(URL.createObjectURL(file));
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("prefix", questionId.replace(/[^a-z0-9-]/g, "").slice(0, 24) || "photo");
+      const res = await fetch("/api/upload-photo", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) onChange(url);
+      }
+    } catch {
+      /* photo optionnelle — on continue même si l'envoi échoue */
     }
     setUploading(false);
   }

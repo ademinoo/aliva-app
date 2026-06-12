@@ -107,18 +107,13 @@ export default function PhotoPage() {
     setPreview(URL.createObjectURL(file));
     setUploading(true);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const ext = file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/repas-${Date.now()}.${ext}`;
-        const { data, error } = await supabase.storage
-          .from("photos-repas")
-          .upload(path, file, { upsert: true });
-        if (!error && data) {
-          const { data: url } = supabase.storage.from("photos-repas").getPublicUrl(data.path);
-          setPhotoUrl(url.publicUrl);
-        }
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("prefix", "repas");
+      const res = await fetch("/api/upload-photo", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) setPhotoUrl(url);
       }
     } catch {
       /* upload optionnel — on garde l'aperçu local et on continue */
