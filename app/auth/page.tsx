@@ -107,6 +107,15 @@ export default function AuthPage() {
         return;
       }
 
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        setError("Un compte existe deja avec cet email. Utilise Connexion ou Mot de passe oublie.");
+        setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+        setLoading(false);
+        return;
+      }
+
       if (!data.session) {
         setNotice("Compte créé. Si une confirmation email est encore active, elle sera demandée avant la première connexion.");
         setMode("login");
