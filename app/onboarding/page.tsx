@@ -26,6 +26,7 @@ interface ACSQ extends BaseQ { type: "acs" }
 
 type Question = TextQ | NumberQ | ChoiceQ | MultiQ | SliderQ | TimePairQ | PhotoQ | ACSQ;
 type Answers = Record<string, string | string[] | number | null>;
+type ProfilePayload = Record<string, unknown>;
 
 // ─── 30 Questions ──────────────────────────────────────────────────────────
 
@@ -120,6 +121,21 @@ function buildProfilePatch(answers: Answers) {
     pourquoi_profond:  (answers.pourquoi as string) || null,
     photo_langue_url:  (answers.photo_langue as string) || null,
   };
+}
+
+const RETRYABLE_PROFILE_COLUMNS = [
+  "ressenti",
+  "rituels_soir",
+  "regularite_repas",
+  "alcool_cafe_sucre",
+  "effort",
+  "vie_sociale",
+  "temperature",
+] as const;
+
+function missingColumnFromError(error: { message?: string }) {
+  const match = error.message?.match(/'([^']+)' column/);
+  return match?.[1] ?? null;
 }
 
 // ─── Splash ────────────────────────────────────────────────────────────────
@@ -502,10 +518,32 @@ export default function Onboarding() {
         router.push("/auth?next=/onboarding");
         return;
       }
-      const patch = buildProfilePatch(answers);
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ id: user.id, ...patch }, { onConflict: "id" });
+      const payload: ProfilePayload = { id: user.id, ...buildProfilePatch(answers) };
+      let error = null;
+
+      for (let attempt = 0; attempt <= RETRYABLE_PROFILE_COLUMNS.length; attempt += 1) {
+        const { error: upsertError } = await supabase
+          .from("profiles")
+          .upsert(payload, { onConflict: "id" });
+
+        if (!upsertError) {
+          error = null;
+          break;
+        }
+
+        const missingColumn = missingColumnFromError(upsertError);
+        if (
+          !missingColumn ||
+          !RETRYABLE_PROFILE_COLUMNS.includes(missingColumn as (typeof RETRYABLE_PROFILE_COLUMNS)[number]) ||
+          !(missingColumn in payload)
+        ) {
+          error = upsertError;
+          break;
+        }
+
+        delete payload[missingColumn];
+        error = upsertError;
+      }
 
       if (error) {
         setSaveError("Impossible de sauvegarder ton profil. Réessaie dans quelques secondes.");
